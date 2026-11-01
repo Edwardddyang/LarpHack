@@ -43,6 +43,9 @@ PROS = [
     {"id": "medvedev", "sport": "tennis", "name": "Daniil Medvedev", "nickname": "The Octopus",
      "signature": "Long levers, flat strokes and unorthodox, deep-court defense.",
      "axes": {"power": 75, "legs": 50, "coil": 55, "reach": 90, "quickness": 60, "stability": 85, "finish": 50}},
+    {"id": "zverev", "sport": "tennis", "name": "Alexander Zverev", "nickname": "Sascha",
+     "signature": "Tall frame, high contact point and a heavy first serve.",
+     "axes": {"power": 90, "legs": 60, "coil": 60, "reach": 92, "quickness": 60, "stability": 80, "finish": 60}},
     # --- Pickleball ---
     {"id": "johns", "sport": "pickleball", "name": "Ben Johns", "nickname": "The GOAT",
      "signature": "Precise, compact mechanics and total control at the kitchen line.",
