@@ -157,7 +157,7 @@ def coach_template(extracted, pro, match) -> dict:
         "fixes": fixes,
         "drills": drills,
         "watch": [f"{pro['name']} {extracted['stroke']} slow motion", f"{pro['name']} {extracted['stroke']} technique breakdown"],
-        "walkout_line": f"Introducing... the next {pro['nickname']}!",
+        "walkout_line": f"Introducing the next {pro['nickname'].removeprefix('The ')}!",
     }
 
 
