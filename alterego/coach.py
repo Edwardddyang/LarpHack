@@ -1,7 +1,8 @@
 """Coaching report: how to play more like your chosen pro.
 
-Uses Claude when ANTHROPIC_API_KEY is set, otherwise a rule-based template so
-the app still works offline.
+Coaching and the coach chat are rule-based by default. Optional: set
+ANTHROPIC_API_KEY (and `pip install anthropic`) to have Claude write them; any
+failure falls back to the rules.
 """
 
 from __future__ import annotations

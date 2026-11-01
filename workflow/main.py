@@ -3,7 +3,7 @@
 analyze_swing
   -> extract            (pose landmarks -> biomechanics + style axes)
   -> score_pro x N      (parallel fan-out, one run per pro)
-  -> write_coaching     (Claude, retried with backoff)
+  -> write_coaching     (coaching plan, retried with backoff)
 
 ingest_pros             (builds the pro model from reference footage)
   -> process_clip x N   (parallel fan-out: download, pose-track, segment serves)

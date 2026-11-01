@@ -11,7 +11,7 @@ Built for **LarpHacks**: Sportiner Challenge (tennis and pickleball innovation) 
 - **Goal pro:** pick who you want to play like. Every later analysis coaches you toward them and shows your change since last time.
 - **Progress:** each analysis is saved on your device, with your match % to your goal pro over time, trends in key measurements, and a daily streak.
 - **Weekly plan:** three practice sessions built from your three biggest gaps, as check-off drills ending in a re-test that feeds the next analysis.
-- **Ask the coach:** a chat (Claude, with rule-based fallback) that knows your numbers, your goal pro and your plan.
+- **Ask the coach:** a chat that answers from your numbers, your goal pro and your plan.
 
 ### Accounts
 
@@ -44,13 +44,13 @@ Render Workflow: analyze_swing
   │                     hip-shoulder separation, contact height, hand speed, tempo…)
   │                     → 7 style axes (power, legs, coil, reach, quickness, stillness, finish)
   ├─ score_pro × N      fan-out: every pro scored in its own parallel task run
-  └─ write_coaching     Claude writes the "become them" plan (structured output, retried w/ backoff)
+  └─ write_coaching     the "become them" plan: cues and drills for your biggest gaps
 Render Workflow: become   re-score + re-coach toward any pro the player taps
 ```
 
 - **Privacy-friendly and cheap:** the video never leaves the device. Only ~100 KB of landmark numbers are uploaded.
 - **Render Workflows:** each step is its own task with its own retry and timeout policy. Pro scoring fans out in parallel with `asyncio.gather(ctx.run(...))`, and the LLM step gets exponential-backoff retries.
-- **Works without keys:** with no `WORKFLOW_SLUG` the web service runs the same pipeline in-process. With no `ANTHROPIC_API_KEY`, coaching falls back to a rule-based template.
+- **Works without keys:** with no `WORKFLOW_SLUG` the web service runs the same pipeline in-process.
 
 ## Run locally
 
@@ -60,7 +60,6 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 # open http://localhost:8000
 ```
 
-Optional: `export ANTHROPIC_API_KEY=...` for Claude-written coaching.
 
 To run against a local Render Workflows task server (Render CLI ≥ 2.12):
 
@@ -74,7 +73,7 @@ RENDER_USE_LOCAL_DEV=true WORKFLOW_SLUG=alter-ego-workflow \
 
 1. Push this repo to GitHub.
 2. In Render: **New → Blueprint**, then pick the repo. `render.yaml` creates the web service and the workflow.
-3. Fill in the secrets when prompted: `RENDER_API_KEY` (web service; Account Settings → API Keys) and `ANTHROPIC_API_KEY` (workflow).
+3. Fill in the one secret when prompted: `RENDER_API_KEY` (web service; Account Settings → API Keys).
 4. `WORKFLOW_SLUG` is wired automatically from the workflow service.
 
 ## Filming tips
