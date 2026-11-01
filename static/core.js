@@ -260,6 +260,7 @@ function writeJSON(key, value) {
   } catch {
     /* storage unavailable: features degrade to this session only */
   }
+  if (account.user) queueSync(key, value);
 }
 
 export const loadSessions = () => readJSON(KEYS.sessions, []);
@@ -381,3 +382,71 @@ const LAST = "alterego.last";
 /** Keep the latest full analysis so Progress/Plan/Coach work after a reload. */
 export const saveLast = (analysis) => writeJSON(LAST, analysis);
 export const loadLast = () => readJSON(LAST, null);
+
+
+// ---------- accounts: sign-in and sync ----------
+// Signed in, every training-data write is mirrored to the account (debounced) so
+// progress follows the player across devices. Guests keep data on this device and
+// it merges into the account when they sign in.
+
+export const account = { user: null };
+const SYNCED = { "alterego.sessions": "sessions", "alterego.goal": "goal", "alterego.plan": "plan", "alterego.chat": "chat", "alterego.last": "last" };
+const pending = new Map();
+let syncTimer = null;
+
+function queueSync(key, value) {
+  if (!(key in SYNCED)) return;
+  pending.set(SYNCED[key], value);
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(flushSync, 400);
+}
+
+async function flushSync() {
+  const batch = [...pending];
+  pending.clear();
+  await Promise.all(batch.map(([k, value]) =>
+    fetch(`/api/me/data/${k}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ value }) })
+      .catch(() => {})));
+}
+
+/** Merge account data with what's on this device, then store the result in both places. */
+async function pullAndMerge() {
+  const remote = await fetch("/api/me/data").then((r) => (r.ok ? r.json() : {}));
+  const byId = new Map([...(remote.sessions || []), ...loadSessions()].map((s) => [s.id, s]));
+  const sessions = [...byId.values()].sort((a, b) => a.at - b.at).slice(-60);
+  writeJSON(KEYS.sessions, sessions);
+  for (const [local, k] of Object.entries(SYNCED)) {
+    if (k === "sessions") continue;
+    const value = remote[k] ?? readJSON(local, null);
+    if (value != null) writeJSON(local, value);
+  }
+}
+
+/** Load the signed-in user (if any) and sync. Call once on page load. */
+export async function initAccount() {
+  try {
+    account.user = (await fetch("/api/me").then((r) => r.json())).user;
+    if (account.user) await pullAndMerge();
+  } catch {
+    account.user = null;
+  }
+  return account.user;
+}
+
+export async function signIn(mode, fields) {
+  const { user } = await post(`/api/auth/${mode === "signup" ? "signup" : "login"}`, fields);
+  account.user = user;
+  await pullAndMerge();
+  return user;
+}
+
+export async function signOut() {
+  await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+  account.user = null;
+  // Don't leave the account's data behind on a shared device.
+  try {
+    for (const k of Object.keys(SYNCED)) localStorage.removeItem(k);
+  } catch {
+    /* ignore */
+  }
+}
