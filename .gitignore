@@ -8,3 +8,4 @@ data/sheets/
 models/*.task
 data/cache/
 *.mp4
+*.mov
