@@ -1,5 +1,5 @@
 // Network-first service worker: always fresh when online, app shell still opens offline.
-const CACHE = "alter-ego-v2";
+const CACHE = "alter-ego-v3";
 const SHELL = ["/m", "/static/mobile.css", "/static/mobile.js", "/static/core.js", "/static/icons/icon-192.png"];
 
 self.addEventListener("install", (e) => {

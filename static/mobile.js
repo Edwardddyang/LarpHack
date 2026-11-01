@@ -21,7 +21,7 @@ function show(id) {
   document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("hidden", s.id !== id));
 }
 
-document.querySelectorAll(".chips").forEach((group) => {
+document.querySelectorAll(".seg").forEach((group) => {
   group.addEventListener("click", (e) => {
     const btn = e.target.closest("button");
     if (!btn) return;
@@ -33,7 +33,7 @@ document.querySelectorAll(".chips").forEach((group) => {
 
 core.loadConfig().then((c) => {
   config = c;
-  $("mode").innerHTML = c.mode === "render-workflow" ? "Powered by <b>Render Workflows</b>" : "Running locally";
+  $("mode").innerHTML = c.mode === "render-workflow" ? "Running on Render Workflows" : "Running locally";
 });
 // Warm up the model while the player picks options.
 core.getLandmarker(MODEL).catch(() => {});
@@ -217,8 +217,8 @@ function startWorking() {
   $("retry").classList.add("hidden");
   $("bar").style.width = "0%";
   // Live recordings have no video to show, so the skeleton canvas stands alone.
-  $("clip").classList.toggle("hidden", source === "live");
-  $("clip-overlay").style.position = source === "live" ? "static" : "";
+  $("clip").classList.toggle("hidden", source !== "file");
+  $("clip-overlay").style.position = source !== "file" ? "static" : "";
 }
 
 let replayTimer = null;
@@ -280,6 +280,30 @@ function showError(err) {
 }
 
 $("retry").addEventListener("click", () => show("home"));
+
+/** Analyze a bundled pro serve (pose data only) so people can explore without a clip. */
+async function runSample() {
+  const sample = await fetch("/static/sample_serve.json").then((r) => r.json());
+  source = "sample";
+  frames = sample.frames;
+  liveSize = { w: sample.width, h: sample.height };
+  startWorking();
+  replaySkeleton();
+  setStep("pose", "done");
+  $("bar").style.width = "100%";
+  setStep("extract", "active");
+  analysis = await core.analyze({ ...choice, sport: "tennis", stroke: "serve", view: "side", width: sample.width, height: sample.height, frames }, (i) => {
+    if (i === 1) { setStep("extract", "done"); setStep("score", "active"); }
+    if (i === 3) { setStep("score", "done"); setStep("coach", "active"); }
+  });
+  clearInterval(replayTimer);
+  contactShot = null;
+  renderResults();
+  show("results");
+  $("deck").scrollTo({ left: 0 });
+}
+$("sample").addEventListener("click", () => runSample().catch(showError));
+if (new URLSearchParams(location.search).has("sample")) runSample().catch(showError);
 $("restart").addEventListener("click", () => show("home"));
 
 // ---------- results ----------
@@ -294,33 +318,35 @@ function renderResults() {
   const rep = analysis.report;
   const isTop = analysis.matches[0].pro_id === pro.id;
 
-  const card = $("card");
-  card.style.backgroundImage = contactShot ? `url(${contactShot})` : "";
-  card.innerHTML = `
-    <div class="label">${isTop ? "Your alter ego" : "Now LARPing as"}</div>
-    <div class="pct">${match.similarity}<small>%</small></div>
-    <div class="name">${esc(pro.name)}</div>
-    <div class="nick">"${esc(pro.nickname)}"</div>
-    <p class="sig">${esc(pro.signature)}</p>
-    <div class="walkout">🎙️ ${esc(rep.walkout_line)}</div>
-    <div class="source">${analysis.low_confidence ? "⚠️ Low match to every pro. Check the camera angle setting matches how you filmed." : (match.measured ? `Measured from ${match.measured.n_serves} real serves` : "Estimated profile")}</div>
-    <div class="swipe">Swipe for your plan →</div>`;
+  const note = analysis.low_confidence
+    ? "Low match to every pro. Check that the camera angle setting matches how you filmed."
+    : match.measured ? `Measured from ${match.measured.n_serves} real serves` : "Estimated profile";
+  $("card").innerHTML = `
+    <div class="match-photo">${contactShot ? `<img src="${contactShot}" alt="Your contact point">` : `<div class="photo-empty">Sample serve</div>`}</div>
+    <div class="eyebrow">${isTop ? "Closest match" : "Coaching you toward"}</div>
+    <div class="match-name">${esc(pro.name)}</div>
+    <div class="match-nick">${esc(pro.nickname)}</div>
+    <div class="match-score"><span class="pct">${match.similarity}%</span><span class="pct-label">style match</span></div>
+    <p class="match-sig">${esc(pro.signature)}</p>
+    <blockquote class="walkout">${esc(rep.walkout_line)}</blockquote>
+    <p class="source ${analysis.low_confidence ? "warn" : ""}">${esc(note)}</p>
+    <div class="swipe">Swipe for your plan</div>`;
 
   $("headline").textContent = rep.headline;
   $("story").textContent = rep.alter_ego_story;
   $("traits").innerHTML = rep.shared_traits.map((t) => `<span>${esc(t)}</span>`).join("");
   $("radar").innerHTML = core.radarSVG(analysis.axis_labels, analysis.axes, match.pro_axes || pro.axes);
   $("phases").innerHTML = core.phaseCharts(analysis, match);
-  $("them-label").textContent = pro.name.split(" ").slice(-1)[0];
+  $("them-label").textContent = pro.name;
 
   $("fixes").innerHTML = rep.fixes
-    .map((f) => `<div class="fix">
+    .map((f) => `<li class="fix">
       <div class="axis">${esc(analysis.labels[f.axis] || f.axis)}</div>
-      <div class="cmp">You: ${esc(f.you)}<br>${esc(pro.name.split(" ")[0])}: ${esc(f.them)}</div>
-      <div class="cue">${esc(f.cue)}</div></div>`)
+      <div class="cmp">You ${esc(f.you)} · ${esc(pro.name.split(" ")[0])} ${esc(f.them)}</div>
+      <div class="cue">${esc(f.cue)}</div></li>`)
     .join("");
   $("drills").innerHTML = rep.drills
-    .map((d) => `<div class="drill"><b>${esc(d.name)}</b><span>${esc(d.how)}</span><br><em>${esc(d.reps)}</em></div>`)
+    .map((d) => `<div class="drill"><b>${esc(d.name)}</b><span>${esc(d.how)}</span><em>${esc(d.reps)}</em></div>`)
     .join("");
   $("watch").innerHTML = rep.watch
     .map((q) => `<a target="_blank" rel="noopener" href="${core.youtube(q)}">${esc(q)}</a>`)
@@ -400,6 +426,7 @@ function wrap(ctx, text, maxWidth) {
 }
 
 async function renderShareCard() {
+  // Light card: contact photo on top, result below. Matches the app's palette.
   const pro = proById(analysis.target);
   const match = analysis.matches.find((m) => m.pro_id === pro.id);
   const W = 1080, H = 1350, P = 72;
@@ -407,61 +434,53 @@ async function renderShareCard() {
   c.width = W;
   c.height = H;
   const x = c.getContext("2d");
-  await document.fonts.load("100px Anton").catch(() => {});
+  await document.fonts.load("600 40px Inter").catch(() => {});
 
-  x.fillStyle = "#0b0f0c";
+  x.fillStyle = "#f5f6f4";
+  x.fillRect(0, 0, W, H);
+  const photoH = 700;
+  x.save();
+  x.beginPath();
+  x.roundRect(P / 2, P / 2, W - P, photoH, 36);
+  x.clip();
+  x.fillStyle = "#e2e5e0";
   x.fillRect(0, 0, W, H);
   if (contactShot) {
     const img = await loadImage(contactShot);
-    const s = Math.max(W / img.width, H / img.height);
-    x.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s);
+    const s = Math.max((W - P) / img.width, photoH / img.height);
+    x.drawImage(img, (W - img.width * s) / 2, P / 2 + (photoH - img.height * s) / 2, img.width * s, img.height * s);
   }
-  const g = x.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "rgba(11,15,12,0.15)");
-  g.addColorStop(0.45, "rgba(11,15,12,0.55)");
-  g.addColorStop(0.72, "rgba(11,15,12,0.95)");
-  x.fillStyle = g;
-  x.fillRect(0, 0, W, H);
-  x.strokeStyle = "#f6c453";
-  x.lineWidth = 10;
-  x.strokeRect(24, 24, W - 48, H - 48);
+  x.restore();
 
-  x.fillStyle = "#eef3ee";
-  x.font = "40px Anton";
-  x.fillText("ALTER", P, 110);
-  x.fillStyle = "#d7ff3a";
-  x.fillText("EGO", P + x.measureText("ALTER").width + 6, 110);
-
-  let y = H - 520;
-  x.fillStyle = "#f6c453";
-  x.font = "600 30px Inter";
-  x.fillText("MY ALTER EGO", P, y);
-  y += 190;
-  x.fillStyle = "#d7ff3a";
-  x.font = "200px Anton";
-  const pct = String(match.similarity);
-  x.fillText(pct, P, y);
-  const pctWidth = x.measureText(pct).width;
-  x.font = "80px Anton";
-  x.fillText("%", P + pctWidth + 10, y);
-  y += 100;
-  x.fillStyle = "#eef3ee";
-  x.font = "96px Anton";
-  x.fillText(pro.name.toUpperCase(), P, y, W - 2 * P);
-  y += 56;
-  x.fillStyle = "#f6c453";
-  x.font = "600 38px Inter";
-  x.fillText(`"${pro.nickname}"`, P, y);
-  y += 64;
-  x.fillStyle = "#eef3ee";
-  x.font = "italic 34px Inter";
-  for (const line of wrap(x, analysis.report.walkout_line, W - 2 * P).slice(0, 2)) {
-    x.fillText(line, P, y);
+  let y = P / 2 + photoH + 80;
+  x.fillStyle = "#69736d";
+  x.font = "500 32px Inter";
+  x.fillText("My closest pro match", P, y);
+  y += 78;
+  x.fillStyle = "#1d2420";
+  x.font = "600 68px Inter";
+  x.fillText(pro.name, P, y, W - 2 * P - 260);
+  x.fillStyle = "#2f7a5b";
+  x.font = "600 96px Inter";
+  x.textAlign = "right";
+  x.fillText(`${match.similarity}%`, W - P, y);
+  x.textAlign = "left";
+  y += 52;
+  x.fillStyle = "#69736d";
+  x.font = "400 34px Inter";
+  x.fillText(pro.nickname, P, y);
+  y += 70;
+  x.fillStyle = "#b8774f";
+  x.fillRect(P, y - 34, 6, 96);
+  x.fillStyle = "#1d2420";
+  x.font = "italic 400 32px Inter";
+  for (const line of wrap(x, analysis.report.walkout_line, W - 2 * P - 30).slice(0, 2)) {
+    x.fillText(line, P + 28, y);
     y += 44;
   }
-  x.fillStyle = "#8f9c93";
-  x.font = "28px Inter";
-  x.fillText("Who's your alter ego? Film one swing to find out.", P, H - 60);
+  x.fillStyle = "#69736d";
+  x.font = "400 26px Inter";
+  x.fillText("Alter Ego · find the pro in your serve", P, H - 56);
   return new Promise((res) => c.toBlob(res, "image/png"));
 }
 
