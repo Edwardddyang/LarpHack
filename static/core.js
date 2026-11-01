@@ -135,11 +135,13 @@ export async function analyze(payload, onTick) {
 
 /** Re-coach an analysis toward another pro; mutates and returns analysis. */
 export async function become(analysis, proId) {
-  const extracted = { sport: analysis.sport, stroke: analysis.stroke, features: analysis.features, axes: analysis.axes };
+  // Send everything extract produced (view, profile source, ...) minus the results.
+  const { matches, target, report, low_confidence, ...extracted } = analysis;
   const { run_id } = await post("/api/become", { extracted, pro_id: proId });
   const res = await poll(run_id);
   analysis.target = res.target;
   analysis.report = res.report;
+  analysis.matches = matches.map((m) => (m.pro_id === res.target ? res.match : m));
   return analysis;
 }
 
