@@ -46,8 +46,8 @@ def process_clip(ctx: TaskContext, clip: dict) -> dict:
 
 
 @app.task(timeout_seconds=300)
-def train_model(ctx: TaskContext, samples: list) -> dict:
-    return ingest.train_model(samples)
+def train_model(ctx: TaskContext, samples: list, view: str = "side") -> dict:
+    return ingest.train_model(samples, view)
 
 
 TASKS = {
@@ -76,8 +76,8 @@ async def become(ctx: TaskContext, extracted: dict, pro_id: str) -> dict:
 
 
 @app.task(timeout_seconds=3600)
-async def ingest_pros(ctx: TaskContext, clips: list) -> dict:
-    return await ingest.ingest(clips, _caller(ctx))
+async def ingest_pros(ctx: TaskContext, clips: list, view: str = "side") -> dict:
+    return await ingest.ingest(clips, _caller(ctx), view)
 
 
 if __name__ == "__main__":

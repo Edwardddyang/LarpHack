@@ -16,21 +16,22 @@ import asyncio
 from . import coach, features as feat, model, pros, style
 
 
-def _measured_model(sport: str, stroke: str):
-    return model.load() if sport == "tennis" and stroke == "serve" else None
+def _measured_model(sport: str, stroke: str, view: str = "side"):
+    return model.load(view) if sport == "tennis" and stroke == "serve" else None
 
 
 def extract(payload: dict) -> dict:
     sport = payload.get("sport", "tennis")
     stroke = payload.get("stroke", "serve")
+    view = payload.get("view") if payload.get("view") in model.VIEWS else "side"
     try:
         f = feat.extract_features(payload)
     except feat.SwingError as e:
         return {"error": str(e)}
-    m = _measured_model(sport, stroke)
+    m = _measured_model(sport, stroke, view)
     if m:
         return {
-            "sport": sport, "stroke": stroke, "features": f,
+            "sport": sport, "stroke": stroke, "view": view, "features": f,
             "profile_source": "measured",
             "axes": model.axes_for(m, f),
             "axis_labels": model.axis_labels(m),
@@ -50,7 +51,7 @@ def extract(payload: dict) -> dict:
 
 def score_pro(extracted: dict, pro_id: str) -> dict:
     if extracted["profile_source"] == "measured":
-        return model.score_one(_measured_model("tennis", "serve"), extracted["features"], pro_id)
+        return model.score_one(_measured_model("tennis", "serve", extracted["view"]), extracted["features"], pro_id)
     return style.compare(extracted["axes"], pros.BY_ID[pro_id])
 
 

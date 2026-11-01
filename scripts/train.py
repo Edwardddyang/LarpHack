@@ -5,7 +5,8 @@
     python scripts/train.py --retrain-only  # retrain from saved samples (no video processing)
 
 Clips come from data/pro_clips.json; per-serve camera-view labels from
-data/serve_labels.json. Writes alterego/data/serve_side_model.json (+ samples).
+data/serve_labels.json. Writes alterego/data/serve_<view>_model.json (+ samples).
+    Pass --view back for the behind-the-baseline model.
 """
 
 import argparse
@@ -38,10 +39,10 @@ async def call_cached(step, *args):
     return await ingest.call_local(step, *args)
 
 
-def save(result):
-    model.MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
-    ingest.SAMPLES_PATH.write_text(json.dumps(result["samples"]))
-    model.MODEL_PATH.write_text(json.dumps(result["model"], indent=1))
+def save(result, view):
+    model.DATA.mkdir(parents=True, exist_ok=True)
+    ingest.samples_path(view).write_text(json.dumps(result["samples"]))
+    model.model_path(view).write_text(json.dumps(result["model"], indent=1))
 
 
 def summarize(result):
@@ -54,12 +55,12 @@ def summarize(result):
     print("evaluation:", m.get("evaluation"))
 
 
-async def run_render(clips):
+async def run_render(clips, view):
     from render import RenderAsync
 
     slug = os.environ.get("WORKFLOW_SLUG", "alter-ego-workflow")
     client = RenderAsync()
-    run = await client.workflows.start_task(f"{slug}/ingest_pros", [clips])
+    run = await client.workflows.start_task(f"{slug}/ingest_pros", [clips, view])
     print("started", run.id)
     details = await run
     return details.results[0]
@@ -69,17 +70,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--render", action="store_true")
     ap.add_argument("--retrain-only", action="store_true")
+    ap.add_argument("--view", choices=model.VIEWS, default="side")
     args = ap.parse_args()
 
     if args.retrain_only:
-        samples = json.loads(ingest.SAMPLES_PATH.read_text())
-        result = {"samples": samples, "model": model.train(samples)}
+        samples = json.loads(ingest.samples_path(args.view).read_text())
+        result = {"samples": samples, "model": model.train(samples, view=args.view)}
     else:
         clips = labeled_clips()
         print(f"{len(clips)} labeled clips")
-        coro = run_render(clips) if args.render else ingest.ingest(clips, call_cached)
+        coro = run_render(clips, args.view) if args.render else ingest.ingest(clips, call_cached, args.view)
         result = asyncio.run(coro)
-    save(result)
+    save(result, args.view)
     summarize(result)
 
 

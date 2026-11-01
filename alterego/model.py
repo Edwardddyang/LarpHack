@@ -22,7 +22,14 @@ import math
 from pathlib import Path
 from statistics import mean, pstdev
 
-MODEL_PATH = Path(__file__).resolve().parent / "data" / "serve_side_model.json"
+DATA = Path(__file__).resolve().parent / "data"
+VIEWS = ("side", "back")
+
+
+def model_path(view: str) -> Path:
+    return DATA / f"serve_{view}_model.json"
+
+
 MIN_SERVES = 3
 
 FEATURES = {
@@ -46,7 +53,7 @@ def fmt(feature: str, value: float) -> str:
     return meta["fmt"].format(value) + meta["unit"]
 
 
-def train(samples: list[dict], evaluate: bool = True) -> dict:
+def train(samples: list[dict], evaluate: bool = True, view: str = "side") -> dict:
     """samples: [{"pro_id", "video_id", "features": {...}}]"""
     by_pro: dict[str, list[dict]] = {}
     for s in samples:
@@ -86,7 +93,7 @@ def train(samples: list[dict], evaluate: bool = True) -> dict:
 
     model = {
         "stroke": "serve",
-        "view": "side",
+        "view": view,
         "features": feats,
         "axes": AXES,
         "population": {f: {"mean": round(m, 4), "std": round(s, 4)} for f, (m, s) in pop.items()},
@@ -170,11 +177,10 @@ def axis_labels(model: dict) -> dict:
     return {f: FEATURES[f]["label"] for f in model["axes"]}
 
 
-_cached = None
+_cache: dict[str, dict] = {}
 
 
-def load() -> dict | None:
-    global _cached
-    if _cached is None and MODEL_PATH.exists():
-        _cached = json.loads(MODEL_PATH.read_text())
-    return _cached
+def load(view: str = "side") -> dict | None:
+    if view not in _cache and model_path(view).exists():
+        _cache[view] = json.loads(model_path(view).read_text())
+    return _cache.get(view)

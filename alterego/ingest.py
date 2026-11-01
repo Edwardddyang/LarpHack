@@ -14,7 +14,10 @@ from . import features, model
 
 ROOT = Path(__file__).resolve().parent.parent
 VIDEOS = ROOT / "data" / "videos"
-SAMPLES_PATH = Path(__file__).resolve().parent / "data" / "serve_side_samples.json"
+
+
+def samples_path(view: str) -> Path:
+    return Path(__file__).resolve().parent / "data" / f"serve_{view}_samples.json"
 
 
 def _video_path(clip: dict, workdir: Path) -> Path:
@@ -70,8 +73,8 @@ def process_clip(clip: dict) -> dict:
     return {"pro_id": clip["pro_id"], "video_id": clip["id"], "samples": samples, "frames": len(payload["frames"])}
 
 
-def train_model(samples: list[dict]) -> dict:
-    return model.train(samples)
+def train_model(samples: list[dict], view: str = "side") -> dict:
+    return model.train(samples, view=view)
 
 
 def labeled_samples(clip: dict, result: dict, view: str) -> list[dict]:
@@ -89,7 +92,7 @@ async def ingest(clips: list[dict], call, view: str = "side") -> dict:
     results = await asyncio.gather(*(call("process_clip", c) for c in clips))
     kept = [labeled_samples(c, r, view) for c, r in zip(clips, results)]
     samples = [s for ks in kept for s in ks]
-    trained = await call("train_model", samples)
+    trained = await call("train_model", samples, view)
     report = [
         {"pro_id": r["pro_id"], "video_id": r["video_id"], "detected": len(r["samples"]),
          "serves": len(ks), "error": r.get("error")}
