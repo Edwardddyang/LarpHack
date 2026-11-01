@@ -6,6 +6,13 @@ Alter Ego lets tennis and pickleball players LARP as a pro. Upload or record a s
 
 Built for **LarpHacks**: Sportiner Challenge (tennis and pickleball innovation) and Best Use of Render.
 
+## Training loop: why you'd keep using it
+
+- **Goal pro:** pick who you want to play like. Every later analysis coaches you toward them and shows your change since last time.
+- **Progress:** each analysis is saved on your device, with your match % to your goal pro over time, trends in key measurements, and a daily streak.
+- **Weekly plan:** three practice sessions built from your three biggest gaps, as check-off drills ending in a re-test that feeds the next analysis.
+- **Ask the coach:** a chat (Claude, with rule-based fallback) that knows your numbers, your goal pro and your plan.
+
 ## 📱 Mobile app
 
 Open the site on a phone (or go to `/m`) to get the mobile app. It's a PWA, so **Add to Home Screen** installs it.
