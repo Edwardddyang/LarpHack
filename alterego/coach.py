@@ -137,6 +137,10 @@ def coach_template(extracted, pro, match) -> dict:
     for key in match["biggest_gaps"]:
         v = values[key]
         cue, drill = CUES.get(key, ("Copy their shape at this phase.", "Shadow swings: 10 slow reps copying the pro."))
+        if match["gaps"][key] < 0:
+            # The pro does less of this than you: the stock cue would push the wrong way.
+            cue = f"Dial back your {v['label'].lower()}: {first} uses less ({v['pro']} vs your {v['you']})."
+            drill = f"Mirror reps: 10 slow shadow serves matching {first}'s {v['label'].lower()}, filmed to check."
         fixes.append({"axis": key, "you": v["you"], "them": v["pro"], "cue": cue})
         name, _, rest = drill.partition(":")
         drills.append({"name": name, "how": rest.strip(), "reps": "Every practice session"})
