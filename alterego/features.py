@@ -315,8 +315,8 @@ def segment_serves(payload: dict, min_frames: int = 12) -> list[dict]:
         # Group active frames into intervals, merging short dips (racket drop).
         groups = []
         for i in active:
-            if groups and frames[i]["t"] - frames[groups[-1][-1]]["t"] <= 0.3 * max(
-                frames[groups[-1][-1]]["t"] - frames[groups[-1][0]]["t"], 0.15
+            if groups and frames[i]["t"] - frames[groups[-1][-1]]["t"] <= max(
+                0.3 * (frames[groups[-1][-1]]["t"] - frames[groups[-1][0]]["t"]), 0.25
             ):
                 groups[-1].append(i)
             else:
