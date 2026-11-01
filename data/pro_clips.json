@@ -1,0 +1,150 @@
+{
+ "stroke": "serve",
+ "view": "side",
+ "clips": [
+  {
+   "pro_id": "federer",
+   "id": "F4UZtKFLHyQ",
+   "url": "https://www.youtube.com/watch?v=F4UZtKFLHyQ",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "federer",
+   "id": "B2uDfNd9QSo",
+   "url": "https://www.youtube.com/watch?v=B2uDfNd9QSo",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "federer",
+   "id": "D4PfHpKbJSI",
+   "url": "https://www.youtube.com/watch?v=D4PfHpKbJSI",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "nadal",
+   "id": "T1Nvjzgn-_0",
+   "url": "https://www.youtube.com/watch?v=T1Nvjzgn-_0",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "nadal",
+   "id": "slIl6QbtxsQ",
+   "url": "https://www.youtube.com/watch?v=slIl6QbtxsQ",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "nadal",
+   "id": "80vAev1yeu8",
+   "url": "https://www.youtube.com/watch?v=80vAev1yeu8",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "djokovic",
+   "id": "vqQcz6sob8Y",
+   "url": "https://www.youtube.com/watch?v=vqQcz6sob8Y",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "djokovic",
+   "id": "k5L2ZpzCNjo",
+   "url": "https://www.youtube.com/watch?v=k5L2ZpzCNjo",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "djokovic",
+   "id": "voYaEhPgRUc",
+   "url": "https://www.youtube.com/watch?v=voYaEhPgRUc",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "alcaraz",
+   "id": "yeKa6zTxh_c",
+   "url": "https://www.youtube.com/watch?v=yeKa6zTxh_c",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "alcaraz",
+   "id": "R2Ukue3bLGE",
+   "url": "https://www.youtube.com/watch?v=R2Ukue3bLGE",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "alcaraz",
+   "id": "NIEuHNG7tzs",
+   "url": "https://www.youtube.com/watch?v=NIEuHNG7tzs",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "sinner",
+   "id": "QmrSeIRDspU",
+   "url": "https://www.youtube.com/watch?v=QmrSeIRDspU",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "sinner",
+   "id": "QjtTJuwkv08",
+   "url": "https://www.youtube.com/watch?v=QjtTJuwkv08",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "sinner",
+   "id": "kIXORtRLZSc",
+   "url": "https://www.youtube.com/watch?v=kIXORtRLZSc",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "serena",
+   "id": "kJUuzlk6d8M",
+   "url": "https://www.youtube.com/watch?v=kJUuzlk6d8M",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "serena",
+   "id": "XoNhZtPO5S4",
+   "url": "https://www.youtube.com/watch?v=XoNhZtPO5S4",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "serena",
+   "id": "h5q7ME5MGAg",
+   "url": "https://www.youtube.com/watch?v=h5q7ME5MGAg",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "kyrgios",
+   "id": "_2ppmuWkr-0",
+   "url": "https://www.youtube.com/watch?v=_2ppmuWkr-0",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "kyrgios",
+   "id": "Z_LU2q1CROA",
+   "url": "https://www.youtube.com/watch?v=Z_LU2q1CROA",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "kyrgios",
+   "id": "7y7lG0-wYEQ",
+   "url": "https://www.youtube.com/watch?v=7y7lG0-wYEQ",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "swiatek",
+   "id": "c_XAVNpco0s",
+   "url": "https://www.youtube.com/watch?v=c_XAVNpco0s",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "swiatek",
+   "id": "9XRdqISXZVo",
+   "url": "https://www.youtube.com/watch?v=9XRdqISXZVo",
+   "status": "candidate"
+  },
+  {
+   "pro_id": "swiatek",
+   "id": "ayEmUJ2zGs0",
+   "url": "https://www.youtube.com/watch?v=ayEmUJ2zGs0",
+   "status": "candidate"
+  }
+ ]
+}
