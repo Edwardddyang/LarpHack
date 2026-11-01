@@ -145,7 +145,7 @@ function renderResults() {
     <div class="nick">"${esc(pro.nickname)}"</div>
     <p class="sig">${esc(pro.signature)}</p>
     <div class="walkout">🎙️ ${esc(rep.walkout_line)}</div>
-    <div class="source">${sourceNote(match)}</div>
+    <div class="source">${analysis.low_confidence ? "⚠️ Low match to every pro. Check the camera angle setting matches how you filmed." : (sourceNote(match))}</div>
     ${contactShot ? `<img src="${contactShot}" alt="Your contact point">` : ""}`;
 
   $("radar-name").textContent = pro.name.split(" ").slice(-1)[0];

@@ -302,7 +302,7 @@ function renderResults() {
     <div class="nick">"${esc(pro.nickname)}"</div>
     <p class="sig">${esc(pro.signature)}</p>
     <div class="walkout">🎙️ ${esc(rep.walkout_line)}</div>
-    <div class="source">${match.measured ? `Measured from ${match.measured.n_serves} real serves` : "Estimated profile"}</div>
+    <div class="source">${analysis.low_confidence ? "⚠️ Low match to every pro. Check the camera angle setting matches how you filmed." : (match.measured ? `Measured from ${match.measured.n_serves} real serves` : "Estimated profile")}</div>
     <div class="swipe">Swipe for your plan →</div>`;
 
   $("headline").textContent = rep.headline;

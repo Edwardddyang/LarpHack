@@ -69,7 +69,9 @@ async def analyze(payload: dict, call) -> dict:
     target = payload.get("target") if payload.get("target") in extracted["candidates"] else matches[0]["pro_id"]
     match = next(m for m in matches if m["pro_id"] == target)
     report = await call("write_coaching", extracted, match)
-    return {**extracted, "matches": matches, "target": target, "report": report}
+    # A poor best match against measured pros usually means a camera-angle mismatch.
+    low_confidence = extracted["profile_source"] == "measured" and matches[0]["similarity"] < 35
+    return {**extracted, "matches": matches, "target": target, "report": report, "low_confidence": low_confidence}
 
 
 async def become(extracted: dict, pro_id: str, call) -> dict:

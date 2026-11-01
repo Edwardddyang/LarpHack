@@ -25,7 +25,7 @@ WORKFLOW_SLUG = os.environ.get("WORKFLOW_SLUG")
 USE_WORKFLOW = bool(WORKFLOW_SLUG) and bool(
     os.environ.get("RENDER_API_KEY") or os.environ.get("RENDER_USE_LOCAL_DEV") == "true"
 )
-MAX_FRAMES = 400
+MAX_FRAMES = 450  # 20s at 20fps, plus slack
 
 app = FastAPI(title="Alter Ego")
 local_runs: dict[str, dict] = {}

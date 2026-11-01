@@ -11,7 +11,7 @@ const MODELS = {
   lite: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
 };
 export const FPS = 20;
-export const MAX_SECONDS = 10;
+export const MAX_SECONDS = 20; // slow-motion serves often run past 10s
 export const MIN_FRAMES = 8;
 
 let landmarker = null;
