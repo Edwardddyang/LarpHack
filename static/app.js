@@ -112,6 +112,13 @@ async function become(proId, li) {
 const esc = core.esc;
 const proById = (id) => config.pros.find((p) => p.id === id);
 
+function sourceNote(match) {
+  if (!match.measured) return "Estimated profile (no measured footage for this stroke yet)";
+  const ev = analysis.evaluation;
+  const acc = ev?.top3 != null ? ` · model picks the right pro in its top 3 ${Math.round(ev.top3 * 100)}% of the time` : "";
+  return `Measured from ${match.measured.n_serves} real serves in ${match.measured.n_videos} videos${acc}`;
+}
+
 function renderResults() {
   const pro = proById(analysis.target);
   const match = analysis.matches.find((m) => m.pro_id === pro.id);
@@ -125,10 +132,13 @@ function renderResults() {
     <div class="nick">"${esc(pro.nickname)}"</div>
     <p class="sig">${esc(pro.signature)}</p>
     <div class="walkout">🎙️ ${esc(rep.walkout_line)}</div>
+    <div class="source">${sourceNote(match)}</div>
     ${contactShot ? `<img src="${contactShot}" alt="Your contact point">` : ""}`;
 
   $("radar-name").textContent = pro.name.split(" ").slice(-1)[0];
-  $("radar").innerHTML = core.radarSVG(config.axes, analysis.axes, pro.axes);
+  $("radar").innerHTML = core.radarSVG(analysis.axis_labels, analysis.axes, match.pro_axes || pro.axes);
+  $("phases").innerHTML = core.phaseCharts(analysis, match);
+  $("phases-panel").classList.toggle("hidden", !$("phases").innerHTML);
 
   $("story").innerHTML = `
     <h3>${esc(rep.headline)}</h3>
@@ -139,7 +149,7 @@ function renderResults() {
     .map((m) => {
       const p = proById(m.pro_id);
       return `<li data-id="${p.id}" class="${p.id === pro.id ? "target" : ""}">
-        <span class="who">${esc(p.name)} <small>${esc(p.nickname)}</small></span>
+        <span class="who">${esc(p.name)} <small>${esc(p.nickname)}${m.measured ? ` · ${m.measured.n_serves} serves measured` : ""}</small></span>
         <span class="val">${m.similarity}%</span>
         <span class="meter"><div style="width:${m.similarity}%"></div></span></li>`;
     })
@@ -148,7 +158,7 @@ function renderResults() {
 
   $("fixes").innerHTML = rep.fixes
     .map((f) => `<div class="fix">
-      <div class="axis">${esc(config.axes[f.axis] || f.axis)}</div>
+      <div class="axis">${esc(analysis.labels[f.axis] || f.axis)}</div>
       <div class="cmp">You: ${esc(f.you)}<br>${esc(pro.name.split(" ")[0])}: ${esc(f.them)}</div>
       <div class="cue">${esc(f.cue)}</div></div>`)
     .join("");

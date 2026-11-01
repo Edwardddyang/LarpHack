@@ -123,7 +123,10 @@ function updateFrameHint(lm) {
 function resetRecordUI() {
   $("rec").classList.remove("on");
   $("countdown").classList.add("hidden");
-  $("timer").textContent = `Prop your phone up · ${COUNTDOWN}s countdown`;
+  $("timer").textContent =
+    choice.stroke === "serve"
+      ? `Film from the side fence, level with your baseline · ${COUNTDOWN}s countdown`
+      : `Prop your phone up · ${COUNTDOWN}s countdown`;
 }
 
 function onRecordButton() {
@@ -296,17 +299,19 @@ function renderResults() {
     <div class="nick">"${esc(pro.nickname)}"</div>
     <p class="sig">${esc(pro.signature)}</p>
     <div class="walkout">🎙️ ${esc(rep.walkout_line)}</div>
+    <div class="source">${match.measured ? `Measured from ${match.measured.n_serves} real serves` : "Estimated profile"}</div>
     <div class="swipe">Swipe for your plan →</div>`;
 
   $("headline").textContent = rep.headline;
   $("story").textContent = rep.alter_ego_story;
   $("traits").innerHTML = rep.shared_traits.map((t) => `<span>${esc(t)}</span>`).join("");
-  $("radar").innerHTML = core.radarSVG(config.axes, analysis.axes, pro.axes);
+  $("radar").innerHTML = core.radarSVG(analysis.axis_labels, analysis.axes, match.pro_axes || pro.axes);
+  $("phases").innerHTML = core.phaseCharts(analysis, match);
   $("them-label").textContent = pro.name.split(" ").slice(-1)[0];
 
   $("fixes").innerHTML = rep.fixes
     .map((f) => `<div class="fix">
-      <div class="axis">${esc(config.axes[f.axis] || f.axis)}</div>
+      <div class="axis">${esc(analysis.labels[f.axis] || f.axis)}</div>
       <div class="cmp">You: ${esc(f.you)}<br>${esc(pro.name.split(" ")[0])}: ${esc(f.them)}</div>
       <div class="cue">${esc(f.cue)}</div></div>`)
     .join("");
@@ -322,7 +327,7 @@ function renderResults() {
     .map((m) => {
       const p = proById(m.pro_id);
       return `<li data-id="${p.id}" class="${p.id === pro.id ? "target" : ""}">
-        <span class="who">${esc(p.name)}<small>${esc(p.nickname)} · ${esc(p.signature)}</small></span>
+        <span class="who">${esc(p.name)}<small>${esc(p.nickname)}${m.measured ? ` · ${m.measured.n_serves} serves measured` : ""} · ${esc(p.signature)}</small></span>
         <span class="val">${m.similarity}%</span>
         <span class="meter"><div style="width:${m.similarity}%"></div></span></li>`;
     })

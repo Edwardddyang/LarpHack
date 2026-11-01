@@ -129,3 +129,10 @@ h3.mt { margin-top: 20px; }
 .again { text-align: center; margin: 24px 0 8px; }
 .again button { background: var(--ball); color: #111; border: 0; border-radius: 999px; padding: 12px 24px; font: inherit; font-weight: 800; cursor: pointer; }
 .fine { text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 40px; }
+
+.card .source { margin-top: 8px; font-size: 12px; color: var(--muted); position: relative; }
+.phases { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 760px) { .phases { grid-template-columns: 1fr; } }
+svg.curve { width: 100%; }
+svg.curve text { fill: var(--muted); font-size: 10px; }
+svg.curve text.ttl { fill: var(--text); font-size: 12px; font-weight: 600; }

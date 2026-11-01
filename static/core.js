@@ -185,3 +185,43 @@ export function featureRows(analysis) {
     ["Follow-through", `${f.follow_time}s`],
   ];
 }
+
+/** Phase-by-phase line chart: the player's time-normalized curve vs the pro's average. */
+export function curveSVG(you, pro, { label, unit = "", invert = false } = {}) {
+  const W = 320, H = 150, L = 34, R = 8, T = 12, B = 22;
+  const all = [...you, ...(pro || [])];
+  let lo = Math.min(...all), hi = Math.max(...all);
+  if (hi - lo < 1e-6) { lo -= 1; hi += 1; }
+  const x = (i, n) => L + (i / (n - 1)) * (W - L - R);
+  const y = (v) => {
+    const f = (v - lo) / (hi - lo);
+    return T + (invert ? f : 1 - f) * (H - T - B);
+  };
+  const line = (vals, color, dash = "") =>
+    `<polyline fill="none" stroke="${color}" stroke-width="2.5" ${dash} points="${vals.map((v, i) => `${x(i, vals.length)},${y(v)}`).join(" ")}"/>`;
+  const fmtv = (v) => (Math.abs(hi - lo) > 10 ? Math.round(v) : v.toFixed(1)) + unit;
+  return `
+    <text x="${L}" y="9" class="ttl">${label}</text>
+    <line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="#26302a"/>
+    <text x="${L - 4}" y="${y(hi)}" text-anchor="end" dominant-baseline="middle">${fmtv(hi)}</text>
+    <text x="${L - 4}" y="${y(lo)}" text-anchor="end" dominant-baseline="middle">${fmtv(lo)}</text>
+    <text x="${L}" y="${H - 6}">start</text>
+    <text x="${W - R}" y="${H - 6}" text-anchor="end">finish</text>
+    ${pro ? line(pro, "#ff6b3d", 'stroke-dasharray="5 4"') : ""}
+    ${line(you, "#d7ff3a")}`;
+}
+
+export const CURVES = [
+  ["knee", "Knee bend through the serve", "°", true],
+  ["wrist_height", "Hitting hand height", "", false],
+];
+
+export function phaseCharts(analysis, match) {
+  const you = analysis.features.curves;
+  const pro = match?.pro_curves;
+  if (!you || !pro) return "";
+  // Knee angle: smaller angle = more bend, so flip it to read "up = more bend".
+  return CURVES.filter(([k]) => you[k] && pro[k])
+    .map(([k, label, unit, invert]) => `<svg class="curve" viewBox="0 0 320 150" role="img" aria-label="${label}">${curveSVG(you[k], pro[k], { label, unit, invert })}</svg>`)
+    .join("");
+}
