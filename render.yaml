@@ -16,6 +16,9 @@ services:
           property: slug
       - key: RENDER_API_KEY
         sync: false
+      # The coach chat answers directly from the web service.
+      - key: ANTHROPIC_API_KEY
+        sync: false
 
   - type: workflow
     name: alter-ego-workflow

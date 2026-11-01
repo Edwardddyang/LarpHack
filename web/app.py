@@ -85,6 +85,16 @@ async def become(body: dict):
     return {"run_id": run_id}
 
 
+@app.post("/api/ask")
+async def ask_coach(body: dict):
+    """Chat with the coach about the player's latest analysis (answered directly, not via the workflow)."""
+    question = (body.get("question") or "").strip()
+    if not question:
+        raise HTTPException(400, "Ask a question.")
+    from alterego import coach
+    return await coach.ask(question, body.get("analysis") or {}, body.get("history") or [])
+
+
 @app.get("/api/runs/{run_id}")
 async def run_status(run_id: str):
     if run_id.startswith("local-"):

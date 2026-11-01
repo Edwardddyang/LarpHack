@@ -172,3 +172,90 @@ def coach(extracted, pro, match) -> dict:
     report = coach_template(extracted, pro, match)
     report["source"] = "template"
     return report
+
+
+# ---------- "Ask the coach" chat ----------
+
+ASK_SYSTEM = """You are the player's personal tennis and pickleball coach inside the Alter Ego app. \
+You know their latest measured stroke, the pro they are training toward, and their practice plan \
+(given as JSON in the first message). Answer their questions like a good coach talking courtside:
+
+- Be specific to their numbers and their goal pro; quote measurements when useful.
+- Keep answers short: 2-5 sentences or a few bullets. Give one clear thing to try next.
+- Suggest drills that work alone or with a partner on a normal court.
+- If they ask about pain or injury, tell them to stop and see a medical professional; don't diagnose.
+- If they ask something unrelated to their game, steer back politely.
+- Pro values marked "measured" come from real footage; "archetype" values are estimates."""
+
+
+def _context(analysis: dict) -> str:
+    keep = ("sport", "stroke", "view", "profile_source", "target", "labels")
+    ctx = {k: analysis.get(k) for k in keep}
+    feats = analysis.get("features") or {}
+    ctx["player_measurements"] = {k: v for k, v in feats.items() if k != "curves"}
+    match = next((m for m in analysis.get("matches", []) if m.get("pro_id") == analysis.get("target")), {})
+    ctx["goal_pro"] = {"name": (match.get("pro") or {}).get("name"), "similarity": match.get("similarity"),
+                       "biggest_gaps": match.get("biggest_gaps"), "gaps_pro_minus_player": match.get("gaps")}
+    report = analysis.get("report") or {}
+    ctx["coaching"] = {"fixes": report.get("fixes"), "drills": report.get("drills")}
+    ctx["plan"] = analysis.get("plan")
+    return json.dumps(ctx, default=str)
+
+
+def ask_template(question: str, analysis: dict) -> str:
+    import re
+
+    report = analysis.get("report") or {}
+    fixes, drills = report.get("fixes") or [], report.get("drills") or []
+    q = question.lower()
+    words = set(re.findall(r"[a-z]+", q))
+    plan = analysis.get("plan") or {}
+    if words & {"today", "practice", "next", "session"} and plan.get("sessions"):
+        for sess in plan["sessions"]:
+            todo = [d for d in sess["drills"] if not d.get("done")]
+            if todo:
+                listed = "; ".join(f"{d['name']} ({d['how']})" for d in todo)
+                return f"Today, finish {sess['title'].lower()}: {listed}. Tick them off in your Plan tab as you go."
+        return "You've finished this week's plan. Film a re-test from the same angle to measure your progress."
+    for f, d in zip(fixes, drills):
+        label = (analysis.get("labels") or {}).get(f["axis"], f["axis"]).lower()
+        # Match whole, meaningful words only ("at" in "what" shouldn't hit "reach at contact").
+        if words & {w for w in re.findall(r"[a-z]+", label) if len(w) > 3}:
+            return f"On {label}: you're at {f['you']} and your goal pro is at {f['them']}. {f['cue']} Try this: {d['name']} ({d['how']})."
+    if fixes:
+        f, d = fixes[0], drills[0] if drills else None
+        tip = f" Start with {d['name']}: {d['how']}." if d else ""
+        return f"Your biggest gap right now is {f['axis'].replace('_', ' ')} ({f['you']} vs {f['them']}). {f['cue']}{tip}"
+    return "Analyze a serve first and I'll coach you on your actual numbers."
+
+
+async def ask(question: str, analysis: dict, history: list[dict]) -> dict:
+    """Answer a coaching question about the player's latest analysis."""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return {"answer": ask_template(question, analysis), "source": "template"}
+    import anthropic
+
+    messages = [{"role": "user", "content": f"My latest analysis:\n{_context(analysis)}"},
+                {"role": "assistant", "content": "Got it. What would you like to work on?"}]
+    for turn in history[-8:]:
+        if turn.get("role") in ("user", "assistant") and turn.get("content"):
+            messages.append({"role": turn["role"], "content": str(turn["content"])[:2000]})
+    messages.append({"role": "user", "content": question[:2000]})
+    try:
+        client = anthropic.AsyncAnthropic()
+        response = await client.beta.messages.create(
+            model=MODEL,
+            max_tokens=16000,
+            output_config={"effort": "low"},
+            betas=["server-side-fallback-2026-07-01"],
+            fallbacks="default",
+            system=ASK_SYSTEM,
+            messages=messages,
+        )
+        text = "".join(b.text for b in response.content if b.type == "text").strip()
+        if response.stop_reason == "refusal" or not text:
+            raise RuntimeError(f"no answer (stop_reason={response.stop_reason})")
+        return {"answer": text, "source": "claude"}
+    except Exception as e:  # keep the chat usable if the API hiccups
+        print(f"Coach chat failed, using template: {e!r}")
+        return {"answer": ask_template(question, analysis), "source": "template"}
