@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: alter-ego
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn web.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: WORKFLOW_SLUG
+        fromService:
+          type: workflow
+          name: alter-ego-workflow
+          property: slug
+      - key: RENDER_API_KEY
+        sync: false
+
+  - type: workflow
+    name: alter-ego-workflow
+    runtime: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: python workflow/main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: ANTHROPIC_API_KEY
+        sync: false
