@@ -12,7 +12,7 @@ let contactShot = null;
 
 // ---------- setup ----------
 
-document.querySelectorAll(".seg").forEach((seg) => {
+document.querySelectorAll(".seg[data-name]").forEach((seg) => {
   seg.addEventListener("click", (e) => {
     const btn = e.target.closest("button");
     if (!btn) return;
@@ -149,8 +149,20 @@ async function afterAnalysis({ save }) {
     core.savePlan(core.buildPlan(analysis));
   }
   renderResults();
+  showResultPane("compare");
   renderProgressCard();
 }
+
+function showResultPane(name) {
+  document.querySelectorAll("#result-tabs button").forEach((b) => b.classList.toggle("on", b.dataset.pane === name));
+  $("r-compare").classList.toggle("hidden", name !== "compare");
+  $("r-improve").classList.toggle("hidden", name !== "improve");
+}
+
+$("result-tabs").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b) showResultPane(b.dataset.pane);
+});
 
 // ---------- become another pro ----------
 

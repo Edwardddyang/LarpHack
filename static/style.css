@@ -260,3 +260,8 @@ svg.curve { max-width: 460px; margin: 0 auto; }
 .suggest button:hover { border-color: var(--accent); }
 .composer { display: flex; gap: 8px; margin-top: auto; }
 .composer input { flex: 1; min-width: 0; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 10px; padding: 10px 12px; font: inherit; }
+
+/* results: Compare / Improve */
+.result-tabs { display: flex; justify-content: center; margin: 4px 0 16px; }
+.seg.wide { display: grid; grid-template-columns: 1fr 1fr; min-width: 320px; }
+.seg.wide button { padding: 9px 0; }

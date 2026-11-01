@@ -89,56 +89,58 @@
     <section id="results" class="hidden">
       <div class="card match" id="card"></div>
 
-      <div class="grid">
-        <div class="card">
-          <h2>Style profile</h2>
-          <p class="hint">You compared with <span id="radar-name"></span>. 50 is the average pro.</p>
-          <svg id="radar" class="radar" viewBox="-60 0 440 300" role="img" aria-label="Style radar chart"></svg>
-          <div class="legend"><span class="you">You</span><span class="them">Pro</span></div>
-        </div>
-        <div class="card" id="story"></div>
-      </div>
-
-      <div class="card hidden" id="phases-panel">
-        <h2>Phase by phase</h2>
-        <p class="hint">Your serve (solid) against their average (dashed), from toss to finish.</p>
-        <div class="phases" id="phases"></div>
-      </div>
-
-      <div class="grid">
-        <div class="card">
-          <h2>What to work on</h2>
-          <ol class="fixes" id="fixes"></ol>
-        </div>
-        <div class="card">
-          <h2>Compare with other pros</h2>
-          <p class="hint">Select a pro to get coached toward their style instead.</p>
-          <ul class="board" id="board"></ul>
+      <div class="result-tabs">
+        <div class="seg wide" id="result-tabs">
+          <button data-pane="compare" class="on">Compare</button>
+          <button data-pane="improve">Improve</button>
         </div>
       </div>
 
-      <div class="grid">
-        <div class="card"><h2>Drills</h2><div id="drills"></div></div>
-        <div class="card">
-          <h2>Watch</h2><div id="watch"></div>
-          <h2 class="mt">Your measurements</h2><dl class="nums" id="nums"></dl>
+      <div id="r-compare">
+        <div class="grid">
+          <div class="card">
+            <h2>Style profile</h2>
+            <p class="hint">You compared with <span id="radar-name"></span>. 50 is the average pro.</p>
+            <svg id="radar" class="radar" viewBox="-60 0 440 300" role="img" aria-label="Style radar chart"></svg>
+            <div class="legend"><span class="you">You</span><span class="them">Pro</span></div>
+          </div>
+          <div class="card" id="story"></div>
+        </div>
+        <div class="card hidden" id="phases-panel">
+          <h2>Phase by phase</h2>
+          <p class="hint">Your serve (solid) against their average (dashed), from toss to finish.</p>
+          <div class="phases" id="phases"></div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h2>Compare with other pros</h2>
+            <p class="hint">Select a pro to get coached toward their style instead.</p>
+            <ul class="board" id="board"></ul>
+          </div>
+          <div class="card"><h2>Your measurements</h2><dl class="nums" id="nums"></dl></div>
         </div>
       </div>
 
-      <div class="grid">
-        <div class="card">
-          <div class="card-head"><h2>This week's plan</h2><span class="chip" id="plan-count"></span></div>
-          <div id="plan-body"></div>
+      <div id="r-improve" class="hidden">
+        <div class="grid">
+          <div class="card"><h2>What to work on</h2><ol class="fixes" id="fixes"></ol></div>
+          <div class="card"><h2>Drills</h2><div id="drills"></div><h2 class="mt">Watch</h2><div id="watch"></div></div>
         </div>
-        <div class="card coach-card">
-          <h2>Ask your coach</h2>
-          <p class="hint">Questions about your serve, your plan or your goal pro.</p>
-          <div class="chat" id="chat"></div>
-          <div class="suggest" id="suggest"></div>
-          <form class="composer" id="composer">
-            <input id="question" placeholder="Ask about your serve…" autocomplete="off">
-            <button class="btn primary" type="submit">Send</button>
-          </form>
+        <div class="grid">
+          <div class="card">
+            <div class="card-head"><h2>This week's plan</h2><span class="chip" id="plan-count"></span></div>
+            <div id="plan-body"></div>
+          </div>
+          <div class="card coach-card">
+            <h2>Ask your coach</h2>
+            <p class="hint">Questions about your serve, your plan or your goal pro.</p>
+            <div class="chat" id="chat"></div>
+            <div class="suggest" id="suggest"></div>
+            <form class="composer" id="composer">
+              <input id="question" placeholder="Ask about your serve…" autocomplete="off">
+              <button class="btn primary" type="submit">Send</button>
+            </form>
+          </div>
         </div>
       </div>
 
