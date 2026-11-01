@@ -231,6 +231,11 @@ def extract_features(payload: dict) -> dict:
 
     stance_width = _robust_max([_dist(pts[i][L_ANKLE], pts[i][R_ANKLE]) for i in window]) / scale
     off_arm_height = _robust_max([height(i, off_wrist) for i in loading])
+    # Trophy timing: when the toss arm peaks, as a share of toss-start -> contact.
+    # Both ends are events inside the windup, so clip trimming can't skew it.
+    trophy = max(loading, key=lambda i: height(i, off_wrist))
+    windup = times[contact] - times[load_start]
+    trophy_share = (times[trophy] - times[load_start]) / windup if windup > 0 else 0.5
 
     nose = [pts[i][NOSE] for i in window]
     head_sway = (pstdev([p[0] for p in nose]) + pstdev([p[1] for p in nose])) / scale if len(nose) > 1 else 0.0
@@ -261,6 +266,7 @@ def extract_features(payload: dict) -> dict:
         "off_arm_height": round(off_arm_height, 2),
         "head_sway": round(head_sway, 3),
         "tempo_ratio": round(prep / (prep + follow), 3) if prep + follow > 0 else 0.5,
+        "trophy_share": round(trophy_share, 3),
         "curves": curves,
     }
 

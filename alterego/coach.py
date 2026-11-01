@@ -122,6 +122,7 @@ CUES = {
     "trunk_lean": ("Lean into the court as you swing up.", "Lean-in tosses: toss slightly into the court and let your body follow, 15 tosses."),
     "off_arm_height": ("Lift your tossing arm all the way up.", "Toss-and-hold: toss and keep the arm pointing up until the ball peaks, 15 tosses."),
     "stance_width": ("Set your feet the way your model does before tossing.", "Stance check: mark your foot spots with balls and serve from them, 10 serves."),
+    "trophy_share": ("Match their rhythm: reach the trophy pose at the same point in the windup.", "Pause-at-trophy serves: toss, hold the trophy pose a beat, then swing, 15 serves."),
     "tempo_ratio": ("Match their rhythm: smooth windup, then explode.", "Count-it serves: say '1-2' on the windup and 'hit' on contact, 15 serves."),
     "quickness": ("Shorter takeback, same speed through.", "Rapid-fire feeds: partner feeds every 2 seconds, 20 balls."),
     "stability": ("Keep your eyes on the contact point after the ball leaves.", "Head-still hits: hold your head still until the ball crosses the net, 15 balls."),

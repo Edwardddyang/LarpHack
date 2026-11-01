@@ -42,7 +42,8 @@ FEATURES = {
     "trunk_lean": {"label": "Trunk lean", "unit": "°", "fmt": "{:.0f}"},
     "off_arm_height": {"label": "Toss-arm height", "unit": " torso", "fmt": "{:.2f}"},
     "stance_width": {"label": "Stance width", "unit": " torso", "fmt": "{:.2f}"},
-    "tempo_ratio": {"label": "Windup share", "unit": "", "fmt": "{:.2f}"},
+    # tempo_ratio (windup vs follow-through) is excluded: it depends on where the clip ends.
+    "trophy_share": {"label": "Trophy timing", "unit": "", "fmt": "{:.2f}"},
 }
 # Radar axes shown in the UI (subset of FEATURES).
 AXES = ["knee_flex", "leg_drive", "shoulder_turn", "contact_height", "arm_extension", "off_arm_height", "trunk_lean"]
