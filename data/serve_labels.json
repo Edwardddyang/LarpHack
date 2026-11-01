@@ -1,5 +1,5 @@
 {
- "_note": "Per-serve camera view, labeled by eye from contact frames (scripts/serve_grid.py). side = camera beside the court level with the baseline, server faces camera at setup; back = behind the baseline; skip = front-on, 3/4, or unclear.",
+ "_note": "Per-serve camera view, labeled by eye from contact frames (scripts/serve_grid.py). side = camera beside the court level with the baseline, server faces camera at setup; back = behind the baseline; skip = front-on, 3/4, or unclear. LzHgnaB89XU is skipped entirely: it is a warm-up analysis where Federer deliberately serves without legs, not representative of his match serve. JZ3cDBbCLe8 is skipped: a breakdown video with freeze-frames/cuts at contact, which zero out leg drive and distort timing. Rule: exclude analysis/breakdown edits; use continuous footage only.",
  "QjtTJuwkv08": {
   "0": "side",
   "1": "side",
@@ -179,5 +179,92 @@
   "7": "side",
   "8": "side",
   "9": "side"
+ },
+ "JZ3cDBbCLe8": {
+  "0": "skip",
+  "1": "skip",
+  "2": "skip",
+  "3": "skip",
+  "4": "skip",
+  "5": "skip",
+  "6": "skip",
+  "7": "skip",
+  "8": "skip",
+  "9": "skip",
+  "10": "skip",
+  "11": "skip",
+  "12": "skip"
+ },
+ "1YuShuvbZnM": {
+  "0": "back",
+  "1": "back",
+  "2": "back",
+  "3": "back",
+  "4": "back",
+  "5": "back",
+  "6": "back"
+ },
+ "LzHgnaB89XU": {
+  "0": "skip",
+  "1": "skip",
+  "2": "skip",
+  "3": "skip",
+  "4": "skip",
+  "5": "skip",
+  "6": "skip",
+  "7": "skip"
+ },
+ "-GsrHgIFwWY": {
+  "0": "back"
+ },
+ "qncGNKVYiOM": {
+  "0": "skip"
+ },
+ "TgLwfKrLVAc": {
+  "0": "side",
+  "1": "side",
+  "2": "side",
+  "3": "side",
+  "4": "side",
+  "5": "side",
+  "6": "side",
+  "7": "side",
+  "8": "side"
+ },
+ "Ek4NsaHYJTE": {
+  "0": "side",
+  "1": "side"
+ },
+ "NksqtT7a5Pk": {
+  "0": "skip"
+ },
+ "aFPEB-PSp0c": {
+  "0": "back"
+ },
+ "1W3G7G0jGxc": {
+  "0": "back"
+ },
+ "p_VPMYUmkzU": {
+  "0": "side"
+ },
+ "8Ji1loHxiLQ": {
+  "0": "back",
+  "1": "back",
+  "2": "back",
+  "3": "back",
+  "4": "back"
+ },
+ "A1GEw9mC6bQ": {
+  "0": "skip"
+ },
+ "NQmHn7O5s8Y": {
+  "0": "back"
+ },
+ "Ynhr4eTJFtQ": {
+  "0": "side"
+ },
+ "nJdUu-5M_2I": {
+  "0": "side",
+  "1": "side"
  }
 }
