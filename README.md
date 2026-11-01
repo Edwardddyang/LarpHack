@@ -66,6 +66,30 @@ RENDER_USE_LOCAL_DEV=true WORKFLOW_SLUG=alter-ego-workflow \
 
 Side-on or from behind, whole body in frame, one stroke per clip, phone propped at about waist height.
 
+## Where the pro data comes from (tennis serve, side view)
+
+Pro serve profiles are **measured from real footage** using the same pose pipeline users go through:
+
+1. **Clips:** public slow-motion practice videos, listed in [data/pro_clips.json](data/pro_clips.json). They're downloaded locally for analysis only and never committed or re-hosted.
+2. **Pose and segmentation:** MediaPipe tracks 33 body points. `segment_serves` finds each serve inside a long clip, and a Viterbi pass fixes the left/right limb swaps that are common side-on.
+3. **Human view labels:** every detected serve's contact frame was checked by eye and labeled side, back or skip ([data/serve_labels.json](data/serve_labels.json)). Many "court level" clips are actually filmed from behind the baseline or switch angles mid-video.
+4. **Model** ([alterego/model.py](alterego/model.py)): one profile per pro, averaged over their measured serves. Each feature's weight is learned from the data: how much it varies between pros relative to how much one pro varies serve to serve. Profiles are built only from timing-free features (angles, heights, ratios), so slow-motion and real-time clips compare fairly.
+
+Current side-view model: **48 serves from 6 pros** (Serena 12, Swiatek 11, Sinner 10, Kyrgios 9, Federer 3, Djokovic 3). **Leave-one-video-out** evaluation picks the right pro as #1 **36%** of the time (chance 17%) and in the top 3 **61%** (chance 50%). That's real signal, but modest. More footage per pro is the main lever, especially for Federer and Djokovic.
+
+Rebuild it:
+
+```bash
+uv pip install -r requirements-ingest.txt
+python scripts/fetch_clips.py          # download approved clips (needs ffmpeg; imageio-ffmpeg is bundled)
+python scripts/process_local.py        # pose-track + segment serves (cached)
+python scripts/serve_grid.py           # contact-frame grids for labeling views
+python scripts/train.py                # train + evaluate -> alterego/data/serve_side_model.json
+python scripts/train.py --render       # or run the same pipeline as the ingest_pros Render Workflow
+```
+
 ## Honest caveats
 
-Pro profiles are hand-tuned **style archetypes** based on publicly described playing styles, not measured motion-capture data. Measurements come from 2D monocular video, so treat them as directional, not lab-grade.
+- Only **tennis serves filmed side-on** use measured profiles. Users should film from the side fence, level with the baseline, so they face the camera at setup. Forehands, backhands and pickleball still use hand-tuned **style archetypes**, and the UI labels them as estimates.
+- Measurements come from 2D monocular video, so treat them as directional, not lab-grade.
+- With 3 serves each, the Federer and Djokovic profiles are thin.
