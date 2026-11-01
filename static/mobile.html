@@ -17,7 +17,7 @@
 </head>
 <body>
   <!-- Home -->
-  <section class="screen" id="home">
+  <section class="screen tabbed" id="home">
     <header class="home-head">
       <div class="logo"><img src="/static/icons/icon-192.png" alt=""> Alter Ego</div>
       <h1>Find the pro in your serve</h1>
@@ -68,6 +68,40 @@
       <a class="switch" href="/?desktop=1">Desktop version</a>
     </div>
   </section>
+
+  <!-- Progress tab -->
+  <section class="screen tabbed hidden" id="progress">
+    <header class="tab-head"><h1>Progress</h1><span class="chip" id="streak"></span></header>
+    <div id="progress-body"></div>
+  </section>
+
+  <!-- Plan tab -->
+  <section class="screen tabbed hidden" id="plan">
+    <header class="tab-head"><h1>This week</h1><span class="chip" id="plan-count"></span></header>
+    <div id="plan-body"></div>
+  </section>
+
+  <!-- Coach tab -->
+  <section class="screen tabbed hidden" id="coach">
+    <header class="tab-head"><h1>Coach</h1></header>
+    <div class="chat" id="chat"></div>
+    <div class="suggest" id="suggest"></div>
+    <form class="composer" id="composer">
+      <input id="question" placeholder="Ask about your serve…" autocomplete="off">
+      <button class="btn primary" type="submit">Send</button>
+    </form>
+  </section>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="home" class="on">
+      <svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Analyze</button>
+    <button data-tab="progress">
+      <svg viewBox="0 0 24 24"><path d="M4 19h16M6 15l4-4 3 3 5-6"/></svg>Progress</button>
+    <button data-tab="plan">
+      <svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>Plan</button>
+    <button data-tab="coach">
+      <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Coach</button>
+  </nav>
 
   <!-- Camera -->
   <section class="screen hidden" id="camera">
@@ -124,9 +158,9 @@
     </div>
     <div class="dots" id="dots"></div>
     <nav class="bar">
-      <button class="btn primary" id="open-pros">Compare pros</button>
+      <button class="btn" id="open-pros">Compare pros</button>
       <button class="btn" id="share">Share</button>
-      <button class="btn" id="restart">New clip</button>
+      <button class="btn primary" id="restart">Done</button>
     </nav>
   </section>
 
