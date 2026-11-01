@@ -1,26 +1,14 @@
-import {
-  PoseLandmarker,
-  FilesetResolver,
-  DrawingUtils,
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
-
-const WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm";
-const MODEL =
-  "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task";
-const FPS = 20;
-const MAX_SECONDS = 10;
+import * as core from "./core.js";
 
 const $ = (id) => document.getElementById(id);
 const video = $("video");
 const overlay = $("overlay");
-const ctx = overlay.getContext("2d");
 
 const choice = { sport: "tennis", stroke: "serve", hand: "auto" };
 let config = null;
-let landmarker = null;
-let tsBase = 0;
 let frames = [];
 let analysis = null; // {sport, stroke, features, axes, matches, target, report}
+let contactShot = null;
 
 // ---------- setup ----------
 
@@ -46,15 +34,13 @@ $("again").addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-fetch("/api/config")
-  .then((r) => r.json())
-  .then((c) => {
-    config = c;
-    $("mode").innerHTML =
-      c.mode === "render-workflow"
-        ? "Analysis pipeline: <b>Render Workflows</b> (each step runs as its own task)"
-        : "Analysis pipeline: <b>local</b> (set WORKFLOW_SLUG to run on Render Workflows)";
-  });
+core.loadConfig().then((c) => {
+  config = c;
+  $("mode").innerHTML =
+    c.mode === "render-workflow"
+      ? "Analysis pipeline: <b>Render Workflows</b> (each step runs as its own task)"
+      : "Analysis pipeline: <b>local</b> (set WORKFLOW_SLUG to run on Render Workflows)";
+});
 
 // ---------- pipeline ----------
 
@@ -78,71 +64,6 @@ function showError(err) {
   document.querySelectorAll("#steps li.active").forEach((li) => li.classList.remove("active"));
 }
 
-async function getLandmarker() {
-  if (!landmarker) {
-    const fileset = await FilesetResolver.forVisionTasks(WASM);
-    landmarker = await PoseLandmarker.createFromOptions(fileset, {
-      baseOptions: { modelAssetPath: MODEL, delegate: "GPU" },
-      runningMode: "VIDEO",
-      numPoses: 1,
-    });
-  }
-  return landmarker;
-}
-
-function once(el, ev) {
-  return new Promise((res) => el.addEventListener(ev, res, { once: true }));
-}
-
-function drawPose(lm) {
-  ctx.clearRect(0, 0, overlay.width, overlay.height);
-  if (!lm) return;
-  const du = new DrawingUtils(ctx);
-  du.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: "#d7ff3a", lineWidth: 4 });
-  du.drawLandmarks(lm, { color: "#ff6b3d", radius: 3 });
-}
-
-async function trackPose(file) {
-  video.src = URL.createObjectURL(file);
-  await once(video, "loadedmetadata");
-  overlay.width = video.videoWidth;
-  overlay.height = video.videoHeight;
-  const lmk = await getLandmarker();
-  const duration = Math.min(video.duration || 0, MAX_SECONDS);
-  if (!duration) throw new Error("Couldn't read that video. Try an MP4 or MOV.");
-
-  frames = [];
-  const r = (v, d) => Math.round(v * d) / d;
-  for (let t = 0; t <= duration; t += 1 / FPS) {
-    video.currentTime = t;
-    await once(video, "seeked");
-    const res = lmk.detectForVideo(video, tsBase + Math.round(t * 1000));
-    const lm = res.landmarks[0];
-    drawPose(lm);
-    if (lm) frames.push({ t: r(t, 1000), lm: lm.map((p) => [r(p.x, 1e4), r(p.y, 1e4), r(p.visibility ?? 1, 100)]) });
-    $("bar").style.width = `${Math.min(100, (t / duration) * 100)}%`;
-  }
-  tsBase += Math.round(duration * 1000) + 1000;
-  if (frames.length < 8) throw new Error("No player detected. Make sure your whole body is visible.");
-}
-
-async function poll(runId, onTick) {
-  for (let i = 0; ; i++) {
-    const r = await fetch(`/api/runs/${runId}`).then((r) => r.json());
-    if (r.status === "completed") return r.result;
-    if (r.status === "failed" || r.status === "canceled") throw new Error(r.error || "Analysis failed");
-    onTick?.(i);
-    await new Promise((res) => setTimeout(res, 900));
-  }
-}
-
-async function post(url, body) {
-  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const data = await r.json();
-  if (!r.ok) throw new Error(data.detail || "Request failed");
-  return data;
-}
-
 async function run(file) {
   $("drop").classList.add("hidden");
   $("results").classList.add("hidden");
@@ -150,44 +71,24 @@ async function run(file) {
   resetSteps();
 
   setStep("pose", "active");
-  await trackPose(file);
+  frames = await core.trackFile(file, video, overlay, (p) => ($("bar").style.width = `${Math.min(100, p * 100)}%`));
   setStep("pose", "done");
 
   setStep("extract", "active");
-  const { run_id } = await post("/api/analyze", {
-    ...choice,
-    width: video.videoWidth,
-    height: video.videoHeight,
-    frames,
-  });
   // The workflow runs as one chained job; advance the checklist while we wait.
-  const result = await poll(run_id, (i) => {
-    if (i === 1) { setStep("extract", "done"); setStep("score", "active"); }
-    if (i === 3) { setStep("score", "done"); setStep("coach", "active"); }
-  });
-  if (result.error) throw new Error(result.error);
+  const result = await core.analyze(
+    { ...choice, width: video.videoWidth, height: video.videoHeight, frames },
+    (i) => {
+      if (i === 1) { setStep("extract", "done"); setStep("score", "active"); }
+      if (i === 3) { setStep("score", "done"); setStep("coach", "active"); }
+    },
+  );
   ["extract", "score", "coach"].forEach((s) => setStep(s, "done"));
 
   analysis = result;
-  await snapshotContact(result.features.contact_time);
+  contactShot = await core.snapshotFromVideo(video, frames, result.features.contact_time);
+  core.drawPose(overlay.getContext("2d"), core.unpack(core.nearestFrame(frames, result.features.contact_time).lm));
   renderResults();
-}
-
-let contactShot = null;
-async function snapshotContact(t) {
-  video.currentTime = t;
-  await once(video, "seeked");
-  const near = frames.reduce((a, b) => (Math.abs(b.t - t) < Math.abs(a.t - t) ? b : a), frames[0]);
-  const c = document.createElement("canvas");
-  c.width = video.videoWidth;
-  c.height = video.videoHeight;
-  const cx = c.getContext("2d");
-  cx.drawImage(video, 0, 0);
-  const du = new DrawingUtils(cx);
-  const lm = near.lm.map(([x, y, v]) => ({ x, y, z: 0, visibility: v }));
-  du.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: "#d7ff3a", lineWidth: 5 });
-  contactShot = c.toDataURL("image/jpeg", 0.8);
-  drawPose(lm);
 }
 
 // ---------- become another pro ----------
@@ -196,11 +97,7 @@ async function become(proId, li) {
   if (proId === analysis.target) return;
   li.classList.add("loading");
   try {
-    const extracted = { sport: analysis.sport, stroke: analysis.stroke, features: analysis.features, axes: analysis.axes };
-    const { run_id } = await post("/api/become", { extracted, pro_id: proId });
-    const res = await poll(run_id);
-    analysis.target = res.target;
-    analysis.report = res.report;
+    await core.become(analysis, proId);
     renderResults();
     $("card").scrollIntoView({ behavior: "smooth" });
   } catch (e) {
@@ -212,7 +109,7 @@ async function become(proId, li) {
 
 // ---------- render ----------
 
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const esc = core.esc;
 const proById = (id) => config.pros.find((p) => p.id === id);
 
 function renderResults() {
@@ -231,7 +128,7 @@ function renderResults() {
     ${contactShot ? `<img src="${contactShot}" alt="Your contact point">` : ""}`;
 
   $("radar-name").textContent = pro.name.split(" ").slice(-1)[0];
-  drawRadar(analysis.axes, pro.axes);
+  $("radar").innerHTML = core.radarSVG(config.axes, analysis.axes, pro.axes);
 
   $("story").innerHTML = `
     <h3>${esc(rep.headline)}</h3>
@@ -261,45 +158,11 @@ function renderResults() {
     .join("");
 
   $("watch").innerHTML = rep.watch
-    .map((q) => `<a target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(q)}">${esc(q)}</a>`)
+    .map((q) => `<a target="_blank" rel="noopener" href="${core.youtube(q)}">${esc(q)}</a>`)
     .join("");
 
-  const f = analysis.features;
-  const nums = [
-    ["Hitting hand", f.hand],
-    ["Peak hand speed", `${f.peak_speed} torso-lengths/s`],
-    ["Max knee bend", `${f.knee_flex}°`],
-    ["Shoulder turn", `${f.shoulder_turn}°`],
-    ["Hip-shoulder separation", `${f.separation}°`],
-    [analysis.stroke === "serve" ? "Contact above shoulders" : "Arm extension at contact",
-      analysis.stroke === "serve" ? `${f.contact_height}× torso` : `${f.arm_extension}°`],
-    ["Prep time", `${f.prep_time}s`],
-    ["Follow-through", `${f.follow_time}s`],
-  ];
-  $("nums").innerHTML = nums.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
+  $("nums").innerHTML = core.featureRows(analysis).map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
 
   $("stage").classList.add("hidden");
   $("results").classList.remove("hidden");
-}
-
-function drawRadar(you, them) {
-  const keys = Object.keys(config.axes);
-  const cx = 160, cy = 150, R = 105;
-  const pt = (i, v) => {
-    const a = -Math.PI / 2 + (i * 2 * Math.PI) / keys.length;
-    return [cx + Math.cos(a) * R * (v / 100), cy + Math.sin(a) * R * (v / 100)];
-  };
-  const poly = (vals, color) =>
-    `<polygon points="${keys.map((k, i) => pt(i, vals[k]).join(",")).join(" ")}" fill="${color}" fill-opacity=".22" stroke="${color}" stroke-width="2"/>`;
-  let svg = "";
-  for (const lvl of [25, 50, 75, 100])
-    svg += `<polygon points="${keys.map((_, i) => pt(i, lvl).join(",")).join(" ")}" fill="none" stroke="#26302a"/>`;
-  keys.forEach((k, i) => {
-    const [x, y] = pt(i, 100);
-    const [lx, ly] = pt(i, 122);
-    svg += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#26302a"/>`;
-    svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle">${config.axes[k]}</text>`;
-  });
-  svg += poly(them, "#ff6b3d") + poly(you, "#d7ff3a");
-  $("radar").innerHTML = svg;
 }
