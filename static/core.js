@@ -14,6 +14,10 @@ export const FPS = 20;
 export const MAX_SECONDS = 20; // slow-motion serves often run past 10s
 export const MIN_FRAMES = 8;
 
+// Skeleton drawn over video: soft white bones, green joints, readable on any footage.
+const SKELETON = "rgba(255, 255, 255, 0.85)";
+const JOINT = "#6fb995";
+
 let landmarker = null;
 let lastTs = 0;
 
@@ -46,8 +50,8 @@ export function drawPose(ctx, lm, lineWidth = 4) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   if (!lm) return;
   const du = new DrawingUtils(ctx);
-  du.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: "#d7ff3a", lineWidth });
-  du.drawLandmarks(lm, { color: "#ff6b3d", radius: lineWidth - 1 });
+  du.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: SKELETON, lineWidth });
+  du.drawLandmarks(lm, { color: JOINT, radius: lineWidth - 1 });
 }
 
 export function once(el, ev) {
@@ -97,7 +101,7 @@ export function composeSnapshot(source, w, h, frame) {
   cx.drawImage(source, 0, 0, w, h);
   if (frame) {
     const du = new DrawingUtils(cx);
-    du.drawConnectors(unpack(frame.lm), PoseLandmarker.POSE_CONNECTIONS, { color: "#d7ff3a", lineWidth: 5 });
+    du.drawConnectors(unpack(frame.lm), PoseLandmarker.POSE_CONNECTIONS, { color: SKELETON, lineWidth: 5 });
   }
   return c.toDataURL("image/jpeg", 0.8);
 }
@@ -159,18 +163,21 @@ export function radarSVG(axes, you, them) {
     const a = -Math.PI / 2 + (i * 2 * Math.PI) / keys.length;
     return [cx + Math.cos(a) * R * (v / 100), cy + Math.sin(a) * R * (v / 100)];
   };
-  const poly = (vals, color) =>
-    `<polygon points="${keys.map((k, i) => pt(i, vals[k]).join(",")).join(" ")}" fill="${color}" fill-opacity=".22" stroke="${color}" stroke-width="2"/>`;
+  // Colors come from CSS (.you / .them / .grid-line) so charts follow the theme.
+  const poly = (vals, cls) =>
+    `<polygon class="${cls}" points="${keys.map((k, i) => pt(i, vals[k]).join(",")).join(" ")}"/>`;
   let svg = "";
   for (const lvl of [25, 50, 75, 100])
-    svg += `<polygon points="${keys.map((_, i) => pt(i, lvl).join(",")).join(" ")}" fill="none" stroke="#26302a"/>`;
+    svg += `<polygon class="grid-line" points="${keys.map((_, i) => pt(i, lvl).join(",")).join(" ")}"/>`;
   keys.forEach((k, i) => {
     const [x, y] = pt(i, 100);
     const [lx, ly] = pt(i, 122);
-    svg += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#26302a"/>`;
-    svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle">${axes[k]}</text>`;
+    svg += `<line class="grid-line" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`;
+    // Anchor side labels away from the chart so long names don't overlap or clip.
+    const anchor = lx < cx - 10 ? "end" : lx > cx + 10 ? "start" : "middle";
+    svg += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle">${axes[k]}</text>`;
   });
-  return svg + poly(them, "#ff6b3d") + poly(you, "#d7ff3a");
+  return svg + poly(them, "them") + poly(you, "you");
 }
 
 export function featureRows(analysis) {
@@ -199,18 +206,18 @@ export function curveSVG(you, pro, { label, unit = "", invert = false } = {}) {
     const f = (v - lo) / (hi - lo);
     return T + (invert ? f : 1 - f) * (H - T - B);
   };
-  const line = (vals, color, dash = "") =>
-    `<polyline fill="none" stroke="${color}" stroke-width="2.5" ${dash} points="${vals.map((v, i) => `${x(i, vals.length)},${y(v)}`).join(" ")}"/>`;
+  const line = (vals, cls) =>
+    `<polyline class="${cls}" points="${vals.map((v, i) => `${x(i, vals.length)},${y(v)}`).join(" ")}"/>`;
   const fmtv = (v) => (Math.abs(hi - lo) > 10 ? Math.round(v) : v.toFixed(1)) + unit;
   return `
     <text x="${L}" y="9" class="ttl">${label}</text>
-    <line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="#26302a"/>
+    <line class="grid-line" x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}"/>
     <text x="${L - 4}" y="${y(hi)}" text-anchor="end" dominant-baseline="middle">${fmtv(hi)}</text>
     <text x="${L - 4}" y="${y(lo)}" text-anchor="end" dominant-baseline="middle">${fmtv(lo)}</text>
     <text x="${L}" y="${H - 6}">start</text>
     <text x="${W - R}" y="${H - 6}" text-anchor="end">finish</text>
-    ${pro ? line(pro, "#ff6b3d", 'stroke-dasharray="5 4"') : ""}
-    ${line(you, "#d7ff3a")}`;
+    ${pro ? line(pro, "them") : ""}
+    ${line(you, "you")}`;
 }
 
 export const CURVES = [
