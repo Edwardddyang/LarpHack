@@ -16,6 +16,7 @@
       <div class="topbar-right">
         <span id="mode" class="mode"></span>
         <a class="link" href="/m">Open on phone</a>
+        <button class="btn small" id="account-btn">Sign in</button>
       </div>
     </div>
   </nav>
@@ -148,6 +149,10 @@
       <p class="fine">Serve profiles are measured from public pro footage with the same pose tracking. Forehands, backhands and pickleball use estimated profiles.</p>
     </section>
   </main>
+
+  <dialog class="auth-dialog" id="auth-dialog">
+    <div id="auth-body"></div>
+  </dialog>
 
   <script type="module" src="/static/app.js"></script>
 </body>

@@ -280,11 +280,23 @@ function renderResults() {
 
 const fmt = (v) => (v == null ? "–" : Math.abs(v) >= 10 ? Math.round(v) : v.toFixed(2));
 
+function signInGate(what) {
+  const n = core.loadSessions().length;
+  return `<div class="gate"><h2>Sign in to ${what}</h2>
+    <p class="hint">Your account keeps your sessions, goal pro and weekly plan on any device.${n ? ` The ${n} session${n > 1 ? "s" : ""} in this browser will be saved to it.` : ""}</p>
+    <button class="btn primary" data-auth="signup">Create account</button>
+    <button class="btn" data-auth="login">Sign in</button></div>`;
+}
+
 function renderProgressCard() {
   const sessions = core.loadSessions();
   const card = $("progress-card");
   card.classList.toggle("hidden", !sessions.length);
   if (!sessions.length) return;
+  if (!core.account.user) {
+    card.innerHTML = signInGate("track your progress");
+    return;
+  }
   const goal = core.getGoal();
   const last = sessions.at(-1);
   const comparable = sessions.filter((s) => s.sport === last.sport && s.stroke === last.stroke && s.view === last.view);
@@ -312,6 +324,11 @@ function renderProgressCard() {
 }
 
 function renderPlan() {
+  if (!core.account.user) {
+    $("plan-count").textContent = "";
+    $("plan-body").innerHTML = signInGate("get a weekly plan");
+    return;
+  }
   const plan = analysisSaved ? core.loadPlan() : null;
   if (!plan) {
     $("plan-count").textContent = "";
@@ -374,4 +391,78 @@ $("suggest").addEventListener("click", (e) => {
   if (b) sendQuestion(b.textContent);
 });
 
+// ---------- account ----------
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+let authMode = "login";
+
+function updateAccountButton() {
+  const u = core.account.user;
+  const b = $("account-btn");
+  b.textContent = u ? (u.name || u.email)[0].toUpperCase() : "Sign in";
+  b.classList.toggle("avatar", !!u);
+  b.title = u ? `${u.name} (${u.email})` : "Sign in";
+}
+
+function openAuth(mode) {
+  if (mode) authMode = mode;
+  const u = core.account.user;
+  if (u) {
+    $("auth-body").innerHTML = `<h2>${esc(u.name)}</h2><p class="hint">${esc(u.email)} · ${plural(core.loadSessions().length, "session")} saved</p>
+      <div class="row"><button class="btn" id="sign-out">Sign out</button><button class="text-btn" id="auth-close">Close</button></div>`;
+    $("sign-out").addEventListener("click", async () => {
+      await core.signOut();
+      $("auth-dialog").close();
+      refreshAccountViews();
+    });
+  } else {
+    const signup = authMode === "signup";
+    $("auth-body").innerHTML = `<h2>${signup ? "Create your account" : "Sign in"}</h2>
+      <p class="hint">${signup ? "Save every session, track your goal pro and keep your plan on any device." : "Pick up where you left off."}</p>
+      <form id="auth-form">
+        ${signup ? `<label>Name<input name="name" autocomplete="name" required></label>` : ""}
+        <label>Email<input name="email" type="email" autocomplete="email" required></label>
+        <label>Password<input name="password" type="password" minlength="8" autocomplete="${signup ? "new-password" : "current-password"}" required></label>
+        <p class="err" id="auth-err"></p>
+        <button class="btn primary" type="submit">${signup ? "Create account" : "Sign in"}</button>
+      </form>
+      <div class="row"><span>${signup ? "Have an account?" : "New here?"}
+        <button class="text-btn" id="switch-mode">${signup ? "Sign in" : "Create one"}</button></span>
+        <button class="text-btn" id="auth-close">Close</button></div>`;
+    $("switch-mode").addEventListener("click", () => openAuth(signup ? "login" : "signup"));
+    $("auth-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector("button[type=submit]");
+      btn.disabled = true;
+      try {
+        await core.signIn(authMode, Object.fromEntries(new FormData(e.target)));
+        $("auth-dialog").close();
+        refreshAccountViews();
+      } catch (err) {
+        $("auth-err").textContent = err.message;
+        btn.disabled = false;
+      }
+    });
+  }
+  $("auth-close").addEventListener("click", () => $("auth-dialog").close());
+  if (!$("auth-dialog").open) $("auth-dialog").showModal();
+}
+
+function refreshAccountViews() {
+  updateAccountButton();
+  renderProgressCard();
+  if (analysis) {
+    renderPlan();
+    renderResults();
+  }
+}
+
+$("account-btn").addEventListener("click", () => openAuth());
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-auth]");
+  if (b) openAuth(b.dataset.auth);
+});
+
 renderProgressCard();
+core.initAccount().then(refreshAccountViews);
