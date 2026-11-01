@@ -19,7 +19,10 @@
   <!-- Home -->
   <section class="screen tabbed" id="home">
     <header class="home-head">
-      <div class="logo"><img src="/static/icons/icon-192.png" alt=""> Alter Ego</div>
+      <div class="head-row">
+        <div class="logo"><img src="/static/icons/icon-192.png" alt=""> Alter Ego</div>
+        <button class="account-btn" id="account-btn">Sign in</button>
+      </div>
       <h1>Find the pro in your serve</h1>
       <p class="sub">Record one stroke. We'll match it to pros measured the same way, then coach you toward whoever you want to play like.</p>
     </header>
@@ -102,6 +105,12 @@
     <button data-tab="coach">
       <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Coach</button>
   </nav>
+
+  <!-- Account -->
+  <section class="screen hidden" id="account">
+    <header class="tab-head"><button class="text-btn back" id="account-back">‹ Back</button></header>
+    <div id="account-body"></div>
+  </section>
 
   <!-- Camera -->
   <section class="screen hidden" id="camera">

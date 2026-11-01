@@ -551,7 +551,20 @@ $("share").addEventListener("click", async () => {
 
 // ---------- progress ----------
 
+function signInGate(what) {
+  const n = core.loadSessions().length;
+  return `<div class="panel gate"><h2>Sign in to ${what}</h2>
+    <p class="hint">Your account keeps your sessions, goal pro and plan, on any device.${n ? ` The ${n} session${n > 1 ? "s" : ""} on this phone will be saved to it.` : ""}</p>
+    <button class="btn primary" data-auth="signup">Create account</button>
+    <button class="btn" data-auth="login">Sign in</button></div>`;
+}
+
 function renderProgress() {
+  if (!core.account.user) {
+    $("streak").textContent = "";
+    $("progress-body").innerHTML = signInGate("track your progress");
+    return;
+  }
   const sessions = core.loadSessions();
   const goal = core.getGoal();
   const n = core.streak();
@@ -600,6 +613,11 @@ const fmt = (v) => (v == null ? "–" : Math.abs(v) >= 10 ? Math.round(v) : v.to
 // ---------- plan ----------
 
 function renderPlan() {
+  if (!core.account.user) {
+    $("plan-count").textContent = "";
+    $("plan-body").innerHTML = signInGate("get a weekly plan");
+    return;
+  }
   const plan = core.loadPlan();
   if (!plan) {
     $("plan-count").textContent = "";
@@ -683,4 +701,84 @@ $("suggest").addEventListener("click", (e) => {
   if (b) sendQuestion(b.textContent);
 });
 
+// ---------- account ----------
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+let authMode = "login";
+let returnTo = "home";
+
+function updateAccountButton() {
+  const u = core.account.user;
+  const b = $("account-btn");
+  b.textContent = u ? (u.name || u.email)[0].toUpperCase() : "Sign in";
+  b.classList.toggle("avatar", !!u);
+  b.setAttribute("aria-label", u ? "Account" : "Sign in");
+}
+
+function openAccount(mode) {
+  if (mode) authMode = mode;
+  const current = document.querySelector(".screen:not(.hidden)")?.id;
+  if (current && current !== "account") returnTo = current;
+  renderAccount();
+  show("account");
+}
+
+function renderAccount() {
+  const u = core.account.user;
+  if (u) {
+    $("account-body").innerHTML = `<div class="signed-in">
+      <div class="avatar-lg">${esc((u.name || u.email)[0].toUpperCase())}</div>
+      <h2>${esc(u.name)}</h2><p class="hint">${esc(u.email)}</p>
+      <p class="hint">${plural(core.loadSessions().length, "session")} saved to your account.</p>
+      <button class="btn" id="sign-out">Sign out</button></div>`;
+    $("sign-out").addEventListener("click", async () => {
+      await core.signOut();
+      updateAccountButton();
+      show("home");
+    });
+    return;
+  }
+  const signup = authMode === "signup";
+  $("account-body").innerHTML = `<div class="auth">
+    <h1>${signup ? "Create your account" : "Welcome back"}</h1>
+    <p class="sub">${signup ? "Save every session, track your goal pro and keep your plan on any device." : "Sign in to pick up where you left off."}</p>
+    <form id="auth-form">
+      ${signup ? `<label>Name<input name="name" autocomplete="name" required></label>` : ""}
+      <label>Email<input name="email" type="email" autocomplete="email" required></label>
+      <label>Password<input name="password" type="password" minlength="8" autocomplete="${signup ? "new-password" : "current-password"}" required></label>
+      <p class="err" id="auth-err"></p>
+      <button class="btn primary" type="submit">${signup ? "Create account" : "Sign in"}</button>
+    </form>
+    <p class="switch-mode">${signup ? "Already have an account?" : "New here?"}
+      <button class="text-btn" id="switch-mode">${signup ? "Sign in" : "Create an account"}</button></p></div>`;
+  $("switch-mode").addEventListener("click", () => openAccount(signup ? "login" : "signup"));
+  $("auth-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fields = Object.fromEntries(new FormData(e.target));
+    const btn = e.target.querySelector("button[type=submit]");
+    btn.disabled = true;
+    try {
+      await core.signIn(authMode, fields);
+      updateAccountButton();
+      show(returnTo in TABS ? returnTo : "progress");
+    } catch (err) {
+      $("auth-err").textContent = err.message;
+      btn.disabled = false;
+    }
+  });
+}
+
+$("account-btn").addEventListener("click", () => openAccount());
+$("account-back").addEventListener("click", () => show(returnTo));
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-auth]");
+  if (b) openAccount(b.dataset.auth);
+});
+
 show("home");
+core.initAccount().then(() => {
+  updateAccountButton();
+  const current = document.querySelector(".screen:not(.hidden)")?.id;
+  if (current in TABS) show(current); // re-render with synced data
+});
