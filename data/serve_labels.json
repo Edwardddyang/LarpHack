@@ -1,0 +1,143 @@
+{
+ "_note": "Per-serve camera view, labeled by eye from contact frames (scripts/serve_grid.py). side = camera beside the court level with the baseline, server faces camera at setup; back = behind the baseline; skip = front-on, 3/4, or unclear.",
+ "QjtTJuwkv08": {
+  "0": "side",
+  "1": "side",
+  "2": "side",
+  "3": "side",
+  "4": "side",
+  "5": "side",
+  "6": "side",
+  "7": "side",
+  "8": "side"
+ },
+ "kIXORtRLZSc": {
+  "0": "side",
+  "1": "skip",
+  "2": "skip",
+  "3": "skip",
+  "4": "skip",
+  "5": "skip",
+  "6": "skip",
+  "7": "skip",
+  "8": "skip"
+ },
+ "QmrSeIRDspU": {
+  "0": "back",
+  "1": "back",
+  "2": "skip",
+  "3": "back",
+  "4": "back",
+  "5": "skip",
+  "6": "skip",
+  "7": "skip",
+  "8": "back"
+ },
+ "R2Ukue3bLGE": {
+  "0": "skip",
+  "1": "skip",
+  "2": "skip",
+  "3": "skip",
+  "4": "skip",
+  "5": "skip",
+  "6": "skip",
+  "7": "skip",
+  "8": "skip"
+ },
+ "NIEuHNG7tzs": {
+  "0": "side"
+ },
+ "Z_LU2q1CROA": {
+  "0": "back",
+  "1": "back",
+  "2": "back",
+  "3": "back",
+  "4": "back",
+  "5": "back",
+  "6": "back",
+  "7": "side",
+  "8": "side",
+  "9": "side"
+ },
+ "_2ppmuWkr-0": {
+  "0": "side",
+  "1": "side",
+  "2": "side",
+  "3": "side"
+ },
+ "7y7lG0-wYEQ": {
+  "0": "side",
+  "1": "side"
+ },
+ "ayEmUJ2zGs0": {
+  "0": "side",
+  "1": "side",
+  "2": "side",
+  "3": "side",
+  "4": "side",
+  "5": "side",
+  "6": "side",
+  "7": "side"
+ },
+ "c_XAVNpco0s": {
+  "0": "side",
+  "1": "side",
+  "2": "side"
+ },
+ "h5q7ME5MGAg": {
+  "0": "side",
+  "1": "side",
+  "2": "side",
+  "3": "side",
+  "4": "side",
+  "5": "side",
+  "6": "side",
+  "7": "side"
+ },
+ "kJUuzlk6d8M": {
+  "0": "side",
+  "1": "side"
+ },
+ "XoNhZtPO5S4": {
+  "0": "side",
+  "1": "side"
+ },
+ "k5L2ZpzCNjo": {
+  "0": "side",
+  "1": "side",
+  "2": "skip"
+ },
+ "vqQcz6sob8Y": {
+  "0": "side",
+  "1": "skip"
+ },
+ "B2uDfNd9QSo": {
+  "0": "back",
+  "1": "back",
+  "2": "back",
+  "3": "back",
+  "4": "back"
+ },
+ "D4PfHpKbJSI": {
+  "0": "side",
+  "1": "side"
+ },
+ "F4UZtKFLHyQ": {
+  "0": "side"
+ },
+ "80vAev1yeu8": {
+  "0": "back",
+  "1": "back",
+  "2": "back",
+  "3": "back",
+  "4": "back",
+  "5": "back",
+  "6": "back"
+ },
+ "slIl6QbtxsQ": {
+  "0": "back",
+  "1": "back",
+  "2": "back",
+  "3": "back"
+ }
+}
