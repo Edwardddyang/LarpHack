@@ -4,7 +4,7 @@ const $ = (id) => document.getElementById(id);
 const video = $("video");
 const overlay = $("overlay");
 
-const choice = { sport: "tennis", stroke: "serve", hand: "auto" };
+const choice = { sport: "tennis", stroke: "serve", hand: "auto", view: "side" };
 let config = null;
 let frames = [];
 let analysis = null; // {sport, stroke, features, axes, matches, target, report}
@@ -18,8 +18,21 @@ document.querySelectorAll(".seg").forEach((seg) => {
     if (!btn) return;
     seg.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b === btn));
     choice[seg.dataset.name] = btn.dataset.value;
+    updateFilmTip();
   });
 });
+
+// Measured pro models exist per camera angle for tennis serves only.
+function updateFilmTip() {
+  const serve = choice.sport === "tennis" && choice.stroke === "serve";
+  $("view-field").classList.toggle("hidden", !serve);
+  $("film-tip").textContent = !serve
+    ? "One stroke, whole body in frame. First 10 seconds are used."
+    : choice.view === "side"
+      ? "Film from the side fence, level with the baseline, so you face the camera at setup. Whole body in frame."
+      : "Film from behind the baseline, looking toward the net, a few meters back. Whole body in frame.";
+}
+updateFilmTip();
 
 $("file").addEventListener("change", (e) => {
   const file = e.target.files[0];

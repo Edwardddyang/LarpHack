@@ -6,7 +6,7 @@ const REC_SECONDS = 6;
 const COUNTDOWN = 5;
 const BODY = [11, 12, 23, 24, 27, 28];
 
-const choice = { sport: "tennis", stroke: "serve", hand: "auto" };
+const choice = { sport: "tennis", stroke: "serve", hand: "auto", view: "side" };
 let config = null;
 let analysis = null;
 let frames = [];
@@ -27,6 +27,7 @@ document.querySelectorAll(".chips").forEach((group) => {
     if (!btn) return;
     group.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b === btn));
     choice[group.dataset.name] = btn.dataset.value;
+    $("view-chips").classList.toggle("hidden", !(choice.sport === "tennis" && choice.stroke === "serve"));
   });
 });
 
@@ -124,9 +125,11 @@ function resetRecordUI() {
   $("rec").classList.remove("on");
   $("countdown").classList.add("hidden");
   $("timer").textContent =
-    choice.stroke === "serve"
-      ? `Film from the side fence, level with your baseline · ${COUNTDOWN}s countdown`
-      : `Prop your phone up · ${COUNTDOWN}s countdown`;
+    choice.stroke !== "serve"
+      ? `Prop your phone up · ${COUNTDOWN}s countdown`
+      : choice.view === "side"
+        ? `Film from the side fence, level with your baseline · ${COUNTDOWN}s countdown`
+        : `Film from behind the baseline, facing the net · ${COUNTDOWN}s countdown`;
 }
 
 function onRecordButton() {

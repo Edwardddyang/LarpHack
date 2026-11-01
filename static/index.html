@@ -35,6 +35,13 @@
             <button data-value="backhand">Backhand</button>
           </div>
         </div>
+        <div class="field" id="view-field">
+          <label>Camera angle (serves)</label>
+          <div class="seg" data-name="view">
+            <button data-value="side" class="on">Side fence</button>
+            <button data-value="back">Behind baseline</button>
+          </div>
+        </div>
         <div class="field">
           <label>Hitting hand</label>
           <div class="seg" data-name="hand">
@@ -48,7 +55,7 @@
       <label class="drop" id="drop">
         <input type="file" id="file" accept="video/*" capture="environment" hidden>
         <strong>Upload or record a clip</strong>
-        <span>Serves: film from the side fence, level with the baseline, so you face the camera at setup. Whole body in frame. First 10 seconds are used.</span>
+        <span id="film-tip">Serves: film from the side fence, level with the baseline, so you face the camera at setup. Whole body in frame. First 10 seconds are used.</span>
       </label>
 
       <div class="stage hidden" id="stage">
