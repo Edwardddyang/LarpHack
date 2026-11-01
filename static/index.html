@@ -3,28 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alter Ego: find the pro in your swing</title>
+  <title>Alter Ego</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/icons/icon-192.png">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <header class="hero">
-    <div class="brand">ALTER<span>EGO</span></div>
-    <h1>Film one swing.<br>Meet the pro you secretly are.<br><em>Then become them.</em></h1>
-    <p class="sub">Pose tracking reads your biomechanics, matches you to tennis and pickleball pros, and coaches you toward whichever pro you want to LARP as.</p>
-    <div id="mode" class="mode"></div>
-    <a class="mode" href="/m">📱 On your phone? Open the mobile app to record live.</a>
-  </header>
+  <nav class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="logo" href="/?desktop=1"><img src="/static/icons/icon-192.png" alt=""> Alter Ego</a>
+      <div class="topbar-right">
+        <span id="mode" class="mode"></span>
+        <a class="link" href="/m">Open on phone</a>
+      </div>
+    </div>
+  </nav>
 
-  <main>
-    <section id="setup" class="panel">
-      <div class="row">
+  <main class="wrap">
+    <header class="hero">
+      <h1>Find the pro in your serve</h1>
+      <p class="sub">Film one stroke. We measure your technique with pose tracking, compare it to pros measured the same way, and coach you toward whoever you want to play like.</p>
+    </header>
+
+    <section id="setup" class="card">
+      <div class="options">
         <div class="field">
           <label>Sport</label>
           <div class="seg" data-name="sport">
-            <button data-value="tennis" class="on">🎾 Tennis</button>
-            <button data-value="pickleball">🏓 Pickleball</button>
+            <button data-value="tennis" class="on">Tennis</button>
+            <button data-value="pickleball">Pickleball</button>
           </div>
         </div>
         <div class="field">
@@ -36,7 +44,7 @@
           </div>
         </div>
         <div class="field" id="view-field">
-          <label>Camera angle (serves)</label>
+          <label>Camera angle</label>
           <div class="seg" data-name="view">
             <button data-value="side" class="on">Side fence</button>
             <button data-value="back">Behind baseline</button>
@@ -54,9 +62,11 @@
 
       <label class="drop" id="drop">
         <input type="file" id="file" accept="video/*" capture="environment" hidden>
-        <strong>Upload or record a clip</strong>
-        <span id="film-tip">Serves: film from the side fence, level with the baseline, so you face the camera at setup. Whole body in frame. First 10 seconds are used.</span>
+        <svg class="drop-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <strong>Choose a video</strong>
+        <span id="film-tip"></span>
       </label>
+      <p class="sample-row">No clip handy? <button class="text-btn" id="sample">Try a sample serve</button></p>
 
       <div class="stage hidden" id="stage">
         <div class="viewer">
@@ -65,54 +75,56 @@
         </div>
         <div class="progress"><div id="bar"></div></div>
         <ol class="steps" id="steps">
-          <li data-step="pose">Tracking 33 body points in your browser</li>
-          <li data-step="extract">Extracting biomechanics</li>
-          <li data-step="score">Scoring you against every pro in parallel</li>
-          <li data-step="coach">Writing your transformation plan</li>
+          <li data-step="pose">Tracking body position</li>
+          <li data-step="extract">Measuring your technique</li>
+          <li data-step="score">Comparing with every pro</li>
+          <li data-step="coach">Writing your coaching plan</li>
         </ol>
         <p class="error hidden" id="error"></p>
       </div>
     </section>
 
     <section id="results" class="hidden">
-      <div class="top">
-        <div class="card" id="card"></div>
-        <div class="panel radar-panel">
-          <h3>You vs <span id="radar-name"></span></h3>
-          <svg id="radar" viewBox="0 0 320 300" role="img" aria-label="Style radar chart"></svg>
-          <div class="legend"><span class="you">You</span><span class="them">Them</span></div>
+      <div class="card match" id="card"></div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Style profile</h2>
+          <p class="hint">You compared with <span id="radar-name"></span>. 50 is the average pro.</p>
+          <svg id="radar" class="radar" viewBox="-60 0 440 300" role="img" aria-label="Style radar chart"></svg>
+          <div class="legend"><span class="you">You</span><span class="them">Pro</span></div>
         </div>
+        <div class="card" id="story"></div>
       </div>
 
-      <div class="panel" id="story"></div>
-
-      <div class="panel hidden" id="phases-panel">
-        <h3>Phase by phase</h3>
-        <p class="hint">Your serve (solid) vs their average (dashed), from toss to finish.</p>
+      <div class="card hidden" id="phases-panel">
+        <h2>Phase by phase</h2>
+        <p class="hint">Your serve (solid) against their average (dashed), from toss to finish.</p>
         <div class="phases" id="phases"></div>
       </div>
 
-      <div class="grid2">
-        <div class="panel">
-          <h3>Who else is in you</h3>
-          <p class="hint">Tap any pro to LARP as them instead.</p>
+      <div class="grid">
+        <div class="card">
+          <h2>What to work on</h2>
+          <ol class="fixes" id="fixes"></ol>
+        </div>
+        <div class="card">
+          <h2>Compare with other pros</h2>
+          <p class="hint">Select a pro to get coached toward their style instead.</p>
           <ul class="board" id="board"></ul>
         </div>
-        <div class="panel">
-          <h3>Close the gap</h3>
-          <div id="fixes"></div>
+      </div>
+
+      <div class="grid">
+        <div class="card"><h2>Drills</h2><div id="drills"></div></div>
+        <div class="card">
+          <h2>Watch</h2><div id="watch"></div>
+          <h2 class="mt">Your measurements</h2><dl class="nums" id="nums"></dl>
         </div>
       </div>
 
-      <div class="grid2">
-        <div class="panel"><h3>Drills</h3><div id="drills"></div></div>
-        <div class="panel"><h3>Study the tape</h3><div id="watch"></div>
-          <h3 class="mt">Your numbers</h3><dl class="nums" id="nums"></dl>
-        </div>
-      </div>
-
-      <div class="again"><button id="again">Analyze another swing</button></div>
-      <p class="fine">Pro profiles are style archetypes based on publicly described playing styles, not measured motion-capture data.</p>
+      <div class="again"><button class="btn primary" id="again">Analyze another clip</button></div>
+      <p class="fine">Serve profiles are measured from public pro footage with the same pose tracking. Forehands, backhands and pickleball use estimated profiles.</p>
     </section>
   </main>
 

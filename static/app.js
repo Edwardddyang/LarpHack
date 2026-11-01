@@ -27,10 +27,10 @@ function updateFilmTip() {
   const serve = choice.sport === "tennis" && choice.stroke === "serve";
   $("view-field").classList.toggle("hidden", !serve);
   $("film-tip").textContent = !serve
-    ? "One stroke, whole body in frame. First 10 seconds are used."
+    ? "One stroke, whole body in frame, up to 20 seconds."
     : choice.view === "side"
-      ? "Film from the side fence, level with the baseline, so you face the camera at setup. Whole body in frame."
-      : "Film from behind the baseline, looking toward the net, a few meters back. Whole body in frame.";
+      ? "Film from beside the court, level with the baseline, so you face the camera at setup. Keep your whole body and racket in frame."
+      : "Film from behind the baseline, looking toward the net. Keep your whole body and racket in frame.";
 }
 updateFilmTip();
 
@@ -40,10 +40,35 @@ $("file").addEventListener("change", (e) => {
   e.target.value = "";
 });
 
+$("sample").addEventListener("click", () => runSample().catch(showError));
+if (new URLSearchParams(location.search).has("sample")) runSample().catch(showError);
+
+/** Analyze a bundled pro serve (pose data only) so people can explore without a clip. */
+async function runSample() {
+  const sample = await fetch("/static/sample_serve.json").then((r) => r.json());
+  $("drop").classList.add("hidden");
+  $("sample").parentElement.classList.add("hidden");
+  $("results").classList.add("hidden");
+  $("stage").classList.remove("hidden");
+  $("stage").querySelector(".viewer").classList.add("hidden");
+  resetSteps();
+  setStep("pose", "done");
+  frames = sample.frames;
+  setStep("extract", "active");
+  analysis = await core.analyze({ ...choice, sport: "tennis", stroke: "serve", view: "side", width: sample.width, height: sample.height, frames }, (i) => {
+    if (i === 1) { setStep("extract", "done"); setStep("score", "active"); }
+    if (i === 3) { setStep("score", "done"); setStep("coach", "active"); }
+  });
+  contactShot = null;
+  renderResults();
+}
+
 $("again").addEventListener("click", () => {
   $("results").classList.add("hidden");
   $("stage").classList.add("hidden");
   $("drop").classList.remove("hidden");
+  $("sample").parentElement.classList.remove("hidden");
+  $("stage").querySelector(".viewer").classList.remove("hidden");
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
@@ -51,8 +76,8 @@ core.loadConfig().then((c) => {
   config = c;
   $("mode").innerHTML =
     c.mode === "render-workflow"
-      ? "Analysis pipeline: <b>Render Workflows</b> (each step runs as its own task)"
-      : "Analysis pipeline: <b>local</b> (set WORKFLOW_SLUG to run on Render Workflows)";
+      ? "Running on Render Workflows"
+      : "Running locally";
 });
 
 // ---------- pipeline ----------
@@ -79,6 +104,8 @@ function showError(err) {
 
 async function run(file) {
   $("drop").classList.add("hidden");
+  $("sample").parentElement.classList.add("hidden");
+  $("stage").querySelector(".viewer").classList.remove("hidden");
   $("results").classList.add("hidden");
   $("stage").classList.remove("hidden");
   resetSteps();
@@ -139,23 +166,28 @@ function renderResults() {
   const rep = analysis.report;
   const isTop = analysis.matches[0].pro_id === pro.id;
 
+  const note = analysis.low_confidence
+    ? "Low match to every pro. Check that the camera angle setting matches how you filmed."
+    : sourceNote(match);
   $("card").innerHTML = `
-    <div class="label">${isTop ? "Your alter ego" : "Now LARPing as"}</div>
-    <div class="pct">${match.similarity}<small>%</small></div>
-    <div class="name">${esc(pro.name)}</div>
-    <div class="nick">"${esc(pro.nickname)}"</div>
-    <p class="sig">${esc(pro.signature)}</p>
-    <div class="walkout">🎙️ ${esc(rep.walkout_line)}</div>
-    <div class="source">${analysis.low_confidence ? "⚠️ Low match to every pro. Check the camera angle setting matches how you filmed." : (sourceNote(match))}</div>
-    ${contactShot ? `<img src="${contactShot}" alt="Your contact point">` : ""}`;
+    <div class="match-photo">${contactShot ? `<img src="${contactShot}" alt="Your contact point">` : `<div class="photo-empty">Sample serve</div>`}</div>
+    <div>
+      <div class="eyebrow">${isTop ? "Closest match" : "Coaching you toward"}</div>
+      <div class="match-name">${esc(pro.name)}</div>
+      <div class="match-nick">${esc(pro.nickname)}</div>
+      <div class="match-score"><span class="pct">${match.similarity}%</span><span class="pct-label">style match</span></div>
+      <p class="match-sig">${esc(pro.signature)}</p>
+      <blockquote class="walkout">${esc(rep.walkout_line)}</blockquote>
+      <p class="source ${analysis.low_confidence ? "warn" : ""}">${esc(note)}</p>
+    </div>`;
 
-  $("radar-name").textContent = pro.name.split(" ").slice(-1)[0];
+  $("radar-name").textContent = pro.name;
   $("radar").innerHTML = core.radarSVG(analysis.axis_labels, analysis.axes, match.pro_axes || pro.axes);
   $("phases").innerHTML = core.phaseCharts(analysis, match);
   $("phases-panel").classList.toggle("hidden", !$("phases").innerHTML);
 
   $("story").innerHTML = `
-    <h3>${esc(rep.headline)}</h3>
+    <h2>${esc(rep.headline)}</h2>
     <p>${esc(rep.alter_ego_story)}</p>
     <div class="traits">${rep.shared_traits.map((t) => `<span>${esc(t)}</span>`).join("")}</div>`;
 
@@ -171,14 +203,14 @@ function renderResults() {
   $("board").querySelectorAll("li").forEach((li) => li.addEventListener("click", () => become(li.dataset.id, li)));
 
   $("fixes").innerHTML = rep.fixes
-    .map((f) => `<div class="fix">
+    .map((f) => `<li class="fix">
       <div class="axis">${esc(analysis.labels[f.axis] || f.axis)}</div>
-      <div class="cmp">You: ${esc(f.you)}<br>${esc(pro.name.split(" ")[0])}: ${esc(f.them)}</div>
-      <div class="cue">${esc(f.cue)}</div></div>`)
+      <div class="cmp">You ${esc(f.you)} · ${esc(pro.name.split(" ")[0])} ${esc(f.them)}</div>
+      <div class="cue">${esc(f.cue)}</div></li>`)
     .join("");
 
   $("drills").innerHTML = rep.drills
-    .map((d) => `<div class="drill"><b>${esc(d.name)}</b><span>${esc(d.how)}</span><br><em>${esc(d.reps)}</em></div>`)
+    .map((d) => `<div class="drill"><b>${esc(d.name)}</b><span>${esc(d.how)}</span><em>${esc(d.reps)}</em></div>`)
     .join("");
 
   $("watch").innerHTML = rep.watch
