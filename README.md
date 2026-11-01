@@ -6,6 +6,18 @@ Alter Ego lets tennis and pickleball players LARP as a pro. Upload or record a s
 
 Built for **LarpHacks**: Sportiner Challenge (tennis and pickleball innovation) and Best Use of Render.
 
+## 📱 Mobile app
+
+Open the site on a phone (or go to `/m`) to get the mobile app. It's a PWA, so **Add to Home Screen** installs it.
+
+- **Live recording:** prop your phone up and tap record. A 5-second countdown gives you time to get in position. Pose tracking runs live on the camera feed, with a full-body framing check, and recording auto-stops after 6 seconds.
+- **Camera-roll upload** works too.
+- **Swipeable results:** alter ego card → radar + story → gaps and cues → drills and tape → your numbers.
+- **"Be someone else":** a bottom sheet that re-coaches you toward any pro.
+- **Share card:** a 1080×1350 image of your contact frame plus your match, shared through the native share sheet.
+
+Camera access needs HTTPS (Render provides it) or `localhost`.
+
 ## How it works
 
 ```
