@@ -75,7 +75,16 @@ Pro serve profiles are **measured from real footage** using the same pose pipeli
 3. **Human view labels:** every detected serve's contact frame was checked by eye and labeled side, back or skip ([data/serve_labels.json](data/serve_labels.json)). Many "court level" clips are actually filmed from behind the baseline or switch angles mid-video.
 4. **Model** ([alterego/model.py](alterego/model.py)): one profile per pro, averaged over their measured serves. Each feature's weight is learned from the data: how much it varies between pros relative to how much one pro varies serve to serve. Profiles are built only from timing-free features (angles, heights, ratios), so slow-motion and real-time clips compare fairly.
 
-Current side-view model: **48 serves from 6 pros** (Serena 12, Swiatek 11, Sinner 10, Kyrgios 9, Federer 3, Djokovic 3). **Leave-one-video-out** evaluation picks the right pro as #1 **36%** of the time (chance 17%) and in the top 3 **61%** (chance 50%). That's real signal, but modest. More footage per pro is the main lever, especially for Federer and Djokovic.
+Current models (leave-one-video-out, so serves from a held-out video are never in training):
+
+| View | Serves | Pros | Top-1 | Top-3 |
+|---|---|---|---|---|
+| **Side fence** (recommended) | 72 | 9: Serena 12, Swiatek 11, Sinner 10, Alcaraz 9, Kyrgios 9, Nadal 7, Zverev 4, Federer 3, Djokovic 3 | 19% (chance 11%) | 56% (chance 33%) |
+| Behind baseline | 37 | 4: Nadal 20, Kyrgios 7, Federer 5, Sinner 5 | 85%* | 100%* |
+
+\* Only Nadal has more than one behind-the-baseline video, so the back model can be tested on Nadal alone. Don't read it as general accuracy.
+
+That's real but modest signal. More footage per pro is the main lever, especially for Federer, Djokovic and Zverev.
 
 Rebuild it:
 
@@ -93,3 +102,4 @@ python scripts/train.py --render       # or run the same pipeline as the ingest_
 - Only **tennis serves filmed side-on** use measured profiles. Users should film from the side fence, level with the baseline, so they face the camera at setup. Forehands, backhands and pickleball still use hand-tuned **style archetypes**, and the UI labels them as estimates.
 - Measurements come from 2D monocular video, so treat them as directional, not lab-grade.
 - With 3 serves each, the Federer and Djokovic profiles are thin.
+- Film from the same angle as the model you pick. A three-quarter or front-on clip won't match either model well, and the app warns when even the best match is poor.
