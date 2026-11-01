@@ -51,8 +51,12 @@ def extract(payload: dict) -> dict:
 
 def score_pro(extracted: dict, pro_id: str) -> dict:
     if extracted["profile_source"] == "measured":
-        return model.score_one(_measured_model("tennis", "serve", extracted["view"]), extracted["features"], pro_id)
-    return style.compare(extracted["axes"], pros.BY_ID[pro_id])
+        match = model.score_one(_measured_model("tennis", "serve", extracted["view"]), extracted["features"], pro_id)
+    else:
+        match = style.compare(extracted["axes"], pros.BY_ID[pro_id])
+    # Ship display info with the match so clients never depend on a stale pro list.
+    match["pro"] = pros.BY_ID[pro_id]
+    return match
 
 
 def write_coaching(extracted: dict, match: dict) -> dict:

@@ -123,7 +123,8 @@ async function become(proId, li) {
 // ---------- render ----------
 
 const esc = core.esc;
-const proById = (id) => config.pros.find((p) => p.id === id);
+const proById = (id) =>
+  analysis?.matches?.find((m) => m.pro_id === id)?.pro || config.pros.find((p) => p.id === id);
 
 function sourceNote(match) {
   if (!match.measured) return "Estimated profile (no measured footage for this stroke yet)";
