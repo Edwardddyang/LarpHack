@@ -79,10 +79,12 @@ Current models (leave-one-video-out, so serves from a held-out video are never i
 
 | View | Serves | Pros | Top-1 | Top-3 |
 |---|---|---|---|---|
-| **Side fence** (recommended) | 72 | 9: Serena 12, Swiatek 11, Sinner 10, Alcaraz 9, Kyrgios 9, Nadal 7, Zverev 4, Federer 3, Djokovic 3 | 22% (chance 11%) | 58% (chance 33%) |
-| Behind baseline | 37 | 4: Nadal 20, Kyrgios 7, Federer 5, Sinner 5 | 80%* | 100%* |
+| **Side fence** | 83 | 9: Djokovic 15, Serena 12, Swiatek 11, Sinner 10, Alcaraz 9, Kyrgios 9, Nadal 7, Zverev 7, Federer 3 | 17% (chance 11%) | 60% (chance 33%) |
+| Behind baseline | 51 | 5: Nadal 20, Federer 13, Kyrgios 7, Zverev 6, Sinner 5 | 74% (chance 20%) | 91% (chance 60%) |
 
-\* Only Nadal has more than one behind-the-baseline video, so the back model can be tested on Nadal alone. Don't read it as general accuracy.
+Only videos with at least one other video of the same pro can be tested. The back model's test set (34 serves) is dominated by Nadal and Federer.
+
+**Footage rule learned the hard way:** use continuous practice or match footage only. Breakdown edits with freeze-frames, and warm-up videos where the player deliberately changes technique, corrupt the measurements. Both kinds were found by eye and excluded (see `_note` in `data/serve_labels.json`).
 
 That's real but modest signal. More footage per pro is the main lever, especially for Federer, Djokovic and Zverev.
 
