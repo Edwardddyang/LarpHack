@@ -364,3 +364,114 @@ $("board").addEventListener("click", async (e) => {
     li.classList.remove("loading");
   }
 });
+
+// ---------- share card ----------
+
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = src;
+  });
+}
+
+function wrap(ctx, text, maxWidth) {
+  const lines = [];
+  let line = "";
+  for (const word of text.split(" ")) {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+async function renderShareCard() {
+  const pro = proById(analysis.target);
+  const match = analysis.matches.find((m) => m.pro_id === pro.id);
+  const W = 1080, H = 1350, P = 72;
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const x = c.getContext("2d");
+  await document.fonts.load("100px Anton").catch(() => {});
+
+  x.fillStyle = "#0b0f0c";
+  x.fillRect(0, 0, W, H);
+  if (contactShot) {
+    const img = await loadImage(contactShot);
+    const s = Math.max(W / img.width, H / img.height);
+    x.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s);
+  }
+  const g = x.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, "rgba(11,15,12,0.15)");
+  g.addColorStop(0.45, "rgba(11,15,12,0.55)");
+  g.addColorStop(0.72, "rgba(11,15,12,0.95)");
+  x.fillStyle = g;
+  x.fillRect(0, 0, W, H);
+  x.strokeStyle = "#f6c453";
+  x.lineWidth = 10;
+  x.strokeRect(24, 24, W - 48, H - 48);
+
+  x.fillStyle = "#eef3ee";
+  x.font = "40px Anton";
+  x.fillText("ALTER", P, 110);
+  x.fillStyle = "#d7ff3a";
+  x.fillText("EGO", P + x.measureText("ALTER").width + 6, 110);
+
+  let y = H - 520;
+  x.fillStyle = "#f6c453";
+  x.font = "600 30px Inter";
+  x.fillText("MY ALTER EGO", P, y);
+  y += 190;
+  x.fillStyle = "#d7ff3a";
+  x.font = "200px Anton";
+  const pct = String(match.similarity);
+  x.fillText(pct, P, y);
+  const pctWidth = x.measureText(pct).width;
+  x.font = "80px Anton";
+  x.fillText("%", P + pctWidth + 10, y);
+  y += 100;
+  x.fillStyle = "#eef3ee";
+  x.font = "96px Anton";
+  x.fillText(pro.name.toUpperCase(), P, y, W - 2 * P);
+  y += 56;
+  x.fillStyle = "#f6c453";
+  x.font = "600 38px Inter";
+  x.fillText(`"${pro.nickname}"`, P, y);
+  y += 64;
+  x.fillStyle = "#eef3ee";
+  x.font = "italic 34px Inter";
+  for (const line of wrap(x, analysis.report.walkout_line, W - 2 * P).slice(0, 2)) {
+    x.fillText(line, P, y);
+    y += 44;
+  }
+  x.fillStyle = "#8f9c93";
+  x.font = "28px Inter";
+  x.fillText("Who's your alter ego? Film one swing to find out.", P, H - 60);
+  return new Promise((res) => c.toBlob(res, "image/png"));
+}
+
+$("share").addEventListener("click", async () => {
+  const pro = proById(analysis.target);
+  const match = analysis.matches.find((m) => m.pro_id === pro.id);
+  const blob = await renderShareCard();
+  const file = new File([blob], "alter-ego.png", { type: "image/png" });
+  const text = `I'm ${match.similarity}% ${pro.name}. Who's your alter ego?`;
+  try {
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: "My alter ego", text });
+      return;
+    }
+  } catch (e) {
+    if (e.name === "AbortError") return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "alter-ego.png";
+  a.click();
+});
