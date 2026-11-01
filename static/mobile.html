@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f0c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Alter Ego">
+  <title>Alter Ego</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/mobile.css">
+</head>
+<body>
+  <!-- Home -->
+  <section class="screen" id="home">
+    <div class="home-top">
+      <div class="brand">ALTER<span>EGO</span></div>
+      <h1>Meet the pro<br>you secretly are.</h1>
+      <p class="sub">Record one swing. We'll find your pro twin, then coach you into becoming whoever you want.</p>
+    </div>
+
+    <div class="choices">
+      <div class="chips" data-name="sport">
+        <button data-value="tennis" class="on">🎾 Tennis</button>
+        <button data-value="pickleball">🏓 Pickleball</button>
+      </div>
+      <div class="chips" data-name="stroke">
+        <button data-value="serve" class="on">Serve</button>
+        <button data-value="forehand">Forehand</button>
+        <button data-value="backhand">Backhand</button>
+      </div>
+      <div class="chips" data-name="hand">
+        <button data-value="auto" class="on">Auto hand</button>
+        <button data-value="right">Righty</button>
+        <button data-value="left">Lefty</button>
+      </div>
+    </div>
+
+    <div class="home-actions">
+      <button class="primary" id="open-camera">● Record a swing</button>
+      <label class="secondary">
+        <input type="file" id="file" accept="video/*" hidden>
+        Upload from camera roll
+      </label>
+      <p class="mode" id="mode"></p>
+      <a class="switch" href="/?desktop=1">Desktop version</a>
+    </div>
+  </section>
+
+  <!-- Camera -->
+  <section class="screen hidden" id="camera">
+    <video id="live" playsinline muted autoplay></video>
+    <canvas id="live-overlay"></canvas>
+    <div class="cam-top">
+      <button class="icon" id="close-camera" aria-label="Close">✕</button>
+      <div class="pill" id="frame-hint">Step back until your whole body fits</div>
+      <button class="icon" id="flip" aria-label="Flip camera">⟲</button>
+    </div>
+    <div class="countdown hidden" id="countdown"></div>
+    <div class="cam-bottom">
+      <div class="timer" id="timer">Prop your phone up · 5s countdown</div>
+      <button class="rec" id="rec" aria-label="Record"><span></span></button>
+    </div>
+  </section>
+
+  <!-- Working -->
+  <section class="screen hidden" id="working">
+    <div class="viewer">
+      <video id="clip" playsinline muted></video>
+      <canvas id="clip-overlay"></canvas>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <ol class="steps" id="steps">
+      <li data-step="pose">Tracking 33 body points</li>
+      <li data-step="extract">Extracting biomechanics</li>
+      <li data-step="score">Scoring you against every pro</li>
+      <li data-step="coach">Writing your transformation plan</li>
+    </ol>
+    <p class="error hidden" id="error"></p>
+    <button class="secondary hidden" id="retry">Try again</button>
+  </section>
+
+  <!-- Results -->
+  <section class="screen hidden" id="results">
+    <div class="deck" id="deck">
+      <article class="slide"><div class="card" id="card"></div></article>
+      <article class="slide">
+        <div class="pane">
+          <h2 id="headline"></h2>
+          <p class="story" id="story"></p>
+          <div class="traits" id="traits"></div>
+          <svg id="radar" viewBox="0 0 320 300" role="img" aria-label="Style radar chart"></svg>
+          <div class="legend"><span class="you">You</span><span class="them" id="them-label">Them</span></div>
+        </div>
+      </article>
+      <article class="slide"><div class="pane"><h2>Close the gap</h2><div id="fixes"></div></div></article>
+      <article class="slide"><div class="pane"><h2>Drills</h2><div id="drills"></div><h2 class="mt">Study the tape</h2><div id="watch"></div></div></article>
+      <article class="slide"><div class="pane"><h2>Your numbers</h2><dl class="nums" id="nums"></dl>
+        <p class="fine">Pro profiles are style archetypes from publicly described playing styles, not measured motion capture.</p></div></article>
+    </div>
+    <div class="dots" id="dots"></div>
+    <nav class="bar">
+      <button id="open-pros">🎭 Be someone else</button>
+      <button id="share">↗ Share card</button>
+      <button id="restart">● New swing</button>
+    </nav>
+  </section>
+
+  <!-- Pro picker sheet -->
+  <div class="sheet-backdrop hidden" id="sheet-backdrop"></div>
+  <div class="sheet" id="sheet" aria-hidden="true">
+    <div class="grab"></div>
+    <h2>Who do you want to be?</h2>
+    <ul class="board" id="board"></ul>
+  </div>
+
+  <script type="module" src="/static/mobile.js"></script>
+</body>
+</html>
