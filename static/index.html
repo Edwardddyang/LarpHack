@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alter Ego: find the pro in your swing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="brand">ALTER<span>EGO</span></div>
+    <h1>Film one swing.<br>Meet the pro you secretly are.<br><em>Then become them.</em></h1>
+    <p class="sub">Pose tracking reads your biomechanics, matches you to tennis and pickleball pros, and coaches you toward whichever pro you want to LARP as.</p>
+    <div id="mode" class="mode"></div>
+  </header>
+
+  <main>
+    <section id="setup" class="panel">
+      <div class="row">
+        <div class="field">
+          <label>Sport</label>
+          <div class="seg" data-name="sport">
+            <button data-value="tennis" class="on">🎾 Tennis</button>
+            <button data-value="pickleball">🏓 Pickleball</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stroke</label>
+          <div class="seg" data-name="stroke">
+            <button data-value="serve" class="on">Serve</button>
+            <button data-value="forehand">Forehand</button>
+            <button data-value="backhand">Backhand</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Hitting hand</label>
+          <div class="seg" data-name="hand">
+            <button data-value="auto" class="on">Auto</button>
+            <button data-value="right">Right</button>
+            <button data-value="left">Left</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="video/*" capture="environment" hidden>
+        <strong>Upload or record a clip</strong>
+        <span>One stroke, whole body in frame, side-on works best. First 10 seconds are used.</span>
+      </label>
+
+      <div class="stage hidden" id="stage">
+        <div class="viewer">
+          <video id="video" playsinline muted></video>
+          <canvas id="overlay"></canvas>
+        </div>
+        <div class="progress"><div id="bar"></div></div>
+        <ol class="steps" id="steps">
+          <li data-step="pose">Tracking 33 body points in your browser</li>
+          <li data-step="extract">Extracting biomechanics</li>
+          <li data-step="score">Scoring you against every pro in parallel</li>
+          <li data-step="coach">Writing your transformation plan</li>
+        </ol>
+        <p class="error hidden" id="error"></p>
+      </div>
+    </section>
+
+    <section id="results" class="hidden">
+      <div class="top">
+        <div class="card" id="card"></div>
+        <div class="panel radar-panel">
+          <h3>You vs <span id="radar-name"></span></h3>
+          <svg id="radar" viewBox="0 0 320 300" role="img" aria-label="Style radar chart"></svg>
+          <div class="legend"><span class="you">You</span><span class="them">Them</span></div>
+        </div>
+      </div>
+
+      <div class="panel" id="story"></div>
+
+      <div class="grid2">
+        <div class="panel">
+          <h3>Who else is in you</h3>
+          <p class="hint">Tap any pro to LARP as them instead.</p>
+          <ul class="board" id="board"></ul>
+        </div>
+        <div class="panel">
+          <h3>Close the gap</h3>
+          <div id="fixes"></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel"><h3>Drills</h3><div id="drills"></div></div>
+        <div class="panel"><h3>Study the tape</h3><div id="watch"></div>
+          <h3 class="mt">Your numbers</h3><dl class="nums" id="nums"></dl>
+        </div>
+      </div>
+
+      <div class="again"><button id="again">Analyze another swing</button></div>
+      <p class="fine">Pro profiles are style archetypes based on publicly described playing styles, not measured motion-capture data.</p>
+    </section>
+  </main>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>
