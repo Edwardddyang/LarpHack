@@ -9,3 +9,4 @@ models/*.task
 data/cache/
 *.mp4
 *.mov
+data/*.db

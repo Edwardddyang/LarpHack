@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from alterego import pipeline, pros  # noqa: E402
+from web import accounts  # noqa: E402
 from alterego.style import AXES  # noqa: E402
 
 WORKFLOW_SLUG = os.environ.get("WORKFLOW_SLUG")
@@ -28,6 +29,7 @@ USE_WORKFLOW = bool(WORKFLOW_SLUG) and bool(
 MAX_FRAMES = 450  # 20s at 20fps, plus slack
 
 app = FastAPI(title="Alter Ego")
+app.include_router(accounts.router)
 local_runs: dict[str, dict] = {}
 _render = None
 
