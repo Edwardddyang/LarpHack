@@ -664,7 +664,7 @@
  "evaluation": {
   "method": "leave-one-video-out",
   "n_test": 34,
-  "top1": 0.735,
+  "top1": 0.647,
   "top3": 0.912
  }
 }

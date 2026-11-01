@@ -31,6 +31,7 @@ def model_path(view: str) -> Path:
 
 
 MIN_SERVES = 3
+Z_CAP = 3.0
 
 FEATURES = {
     "knee_flex": {"label": "Knee bend", "unit": "°", "fmt": "{:.0f}"},
@@ -137,7 +138,9 @@ def distance2(model: dict, x: dict, pro_id: str) -> tuple[float, dict]:
     pro = model["pros"][pro_id]["mean"]
     w = model["weights"]
     z = {f: (x[f] - pro[f]) / model["within_std"][f] for f in model["features"]}
-    d2 = sum(w[f] * z[f] ** 2 for f in z) / sum(w.values())
+    # Cap each feature's contribution: one glitchy measurement (e.g. a motion-blurred
+    # arm at contact on phone footage) shouldn't wipe out an otherwise close match.
+    d2 = sum(w[f] * min(z[f] ** 2, Z_CAP ** 2) for f in z) / sum(w.values())
     return d2, z
 
 

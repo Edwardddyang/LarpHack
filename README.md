@@ -79,8 +79,8 @@ Current models (leave-one-video-out, so serves from a held-out video are never i
 
 | View | Serves | Pros | Top-1 | Top-3 |
 |---|---|---|---|---|
-| **Side fence** | 83 | 9: Djokovic 15, Serena 12, Swiatek 11, Sinner 10, Alcaraz 9, Kyrgios 9, Nadal 7, Zverev 7, Federer 3 | 17% (chance 11%) | 60% (chance 33%) |
-| Behind baseline | 51 | 5: Nadal 20, Federer 13, Kyrgios 7, Zverev 6, Sinner 5 | 74% (chance 20%) | 91% (chance 60%) |
+| **Side fence** | 83 | 9: Djokovic 15, Serena 12, Swiatek 11, Sinner 10, Alcaraz 9, Kyrgios 9, Nadal 7, Zverev 7, Federer 3 | 19% (chance 11%) | 62% (chance 33%) |
+| Behind baseline | 51 | 5: Nadal 20, Federer 13, Kyrgios 7, Zverev 6, Sinner 5 | 65% (chance 20%) | 91% (chance 60%) |
 
 Only videos with at least one other video of the same pro can be tested. The back model's test set (34 serves) is dominated by Nadal and Federer.
 

@@ -1120,7 +1120,7 @@
  "evaluation": {
   "method": "leave-one-video-out",
   "n_test": 58,
-  "top1": 0.172,
-  "top3": 0.603
+  "top1": 0.19,
+  "top3": 0.621
  }
 }
