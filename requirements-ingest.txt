@@ -1,0 +1,7 @@
+# Extra dependencies for processing reference footage (ingestion workflow / scripts).
+-r requirements.txt
+mediapipe>=0.10.14
+opencv-python-headless>=4.10
+numpy>=1.26
+yt-dlp>=2025.1.1
+imageio-ffmpeg>=0.5
