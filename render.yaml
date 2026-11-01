@@ -21,7 +21,11 @@ services:
     name: alter-ego-workflow
     runtime: python
     region: oregon
-    buildCommand: pip install -r requirements.txt
+    # mediapipe pulls in the GUI OpenCV build, which needs libGL; swap in the headless one.
+    buildCommand: >-
+      pip install -r requirements-ingest.txt &&
+      pip uninstall -y opencv-contrib-python opencv-python &&
+      pip install opencv-contrib-python-headless
     startCommand: python workflow/main.py
     envVars:
       - key: PYTHON_VERSION
