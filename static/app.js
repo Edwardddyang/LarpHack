@@ -60,7 +60,8 @@ async function runSample() {
     if (i === 3) { setStep("score", "done"); setStep("coach", "active"); }
   });
   contactShot = null;
-  renderResults();
+  // The sample is a pro's serve, so it isn't saved to your progress.
+  await afterAnalysis({ save: false });
 }
 
 $("again").addEventListener("click", () => {
@@ -128,7 +129,27 @@ async function run(file) {
   analysis = result;
   contactShot = await core.snapshotFromVideo(video, frames, result.features.contact_time);
   core.drawPose(overlay.getContext("2d"), core.unpack(core.nearestFrame(frames, result.features.contact_time).lm));
+  await afterAnalysis({ save: true });
+}
+
+let previous = null; // last comparable session, for "since last time"
+let analysisSaved = false; // false for the bundled sample serve
+
+/** Aim coaching at the goal pro, record progress and refresh the plan, then show results. */
+async function afterAnalysis({ save }) {
+  const goal = core.getGoal();
+  if (goal && goal.pro_id !== analysis.target && analysis.candidates?.includes(goal.pro_id)) {
+    await core.become(analysis, goal.pro_id).catch(() => {});
+  }
+  analysisSaved = save;
+  previous = save ? core.comparableSessions(analysis).at(-1) || null : null;
+  if (save) {
+    core.saveSession(analysis);
+    core.saveLast(analysis);
+    core.savePlan(core.buildPlan(analysis));
+  }
   renderResults();
+  renderProgressCard();
 }
 
 // ---------- become another pro ----------
@@ -160,6 +181,14 @@ function sourceNote(match) {
   return `Measured from ${match.measured.n_serves} real serves in ${match.measured.n_videos} videos${acc}`;
 }
 
+function sinceLast(pro) {
+  const before = previous?.similarity?.[pro.id];
+  const now = analysis.matches.find((m) => m.pro_id === pro.id)?.similarity;
+  if (before == null || now == null) return "";
+  const d = now - before;
+  return `<div class="delta ${d > 0 ? "up" : d < 0 ? "down" : ""}">${d > 0 ? "+" : ""}${d} since your last session</div>`;
+}
+
 function renderResults() {
   const pro = proById(analysis.target);
   const match = analysis.matches.find((m) => m.pro_id === pro.id);
@@ -178,8 +207,20 @@ function renderResults() {
       <div class="match-score"><span class="pct">${match.similarity}%</span><span class="pct-label">style match</span></div>
       <p class="match-sig">${esc(pro.signature)}</p>
       <blockquote class="walkout">${esc(rep.walkout_line)}</blockquote>
+      ${sinceLast(pro)}
       <p class="source ${analysis.low_confidence ? "warn" : ""}">${esc(note)}</p>
+      ${core.getGoal()?.pro_id === pro.id
+        ? `<span class="chip">Your goal pro</span>`
+        : `<button class="btn goal-btn" id="set-goal">Make ${esc(pro.name.split(" ")[0])} my goal</button>`}
     </div>`;
+  $("set-goal")?.addEventListener("click", () => {
+    core.setGoal(pro.id, pro.name);
+    if (analysisSaved) core.savePlan(core.buildPlan(analysis));
+    renderResults();
+    renderProgressCard();
+  });
+  renderPlan();
+  renderCoach();
 
   $("radar-name").textContent = pro.name;
   $("radar").innerHTML = core.radarSVG(analysis.axis_labels, analysis.axes, match.pro_axes || pro.axes);
@@ -222,3 +263,103 @@ function renderResults() {
   $("stage").classList.add("hidden");
   $("results").classList.remove("hidden");
 }
+
+// ---------- progress, plan, coach ----------
+
+const fmt = (v) => (v == null ? "–" : Math.abs(v) >= 10 ? Math.round(v) : v.toFixed(2));
+
+function renderProgressCard() {
+  const sessions = core.loadSessions();
+  const card = $("progress-card");
+  card.classList.toggle("hidden", !sessions.length);
+  if (!sessions.length) return;
+  const goal = core.getGoal();
+  const last = sessions.at(-1);
+  const comparable = sessions.filter((s) => s.sport === last.sport && s.stroke === last.stroke && s.view === last.view);
+  const n = core.streak();
+  let left = `<h2>Your progress</h2><p class="hint">${sessions.length} session${sessions.length > 1 ? "s" : ""}${n ? ` · ${n}-day streak` : ""}</p>`;
+  if (goal) {
+    const series = comparable.map((s) => s.similarity[goal.pro_id]).filter((v) => v != null);
+    const d = series.length > 1 ? series.at(-1) - series[0] : null;
+    left += `<div class="goal-row"><div><div class="eyebrow">Goal pro</div><strong>${esc(goal.name)}</strong></div>
+      <span class="big">${series.at(-1) ?? "–"}%</span></div>
+      ${d == null ? `<p class="hint">Analyze again to see your trend.</p>` : `<div class="delta ${d > 0 ? "up" : d < 0 ? "down" : ""}">${d > 0 ? "+" : ""}${d} since your first session</div>`}
+      ${core.sparkSVG(series, { label: "Match to goal pro over time" })}`;
+  } else {
+    left += `<p class="hint">Pick a goal pro from a result to track how close you're getting.</p>`;
+  }
+  const labels = last.labels || {};
+  const keys = ["leg_drive", "knee_flex", "contact_height", "separation"].filter((k) => k in last.features);
+  const right = `<div>${keys.map((k) => {
+    const series = comparable.map((s) => s.features[k]).filter((v) => v != null);
+    const d = series.length > 1 ? series.at(-1) - series[0] : null;
+    return `<div class="metric"><span>${esc(labels[k] || k)}</span><span class="val">${fmt(series.at(-1))}</span>
+      <span class="sub">${d == null ? "First measurement" : `${d >= 0 ? "+" : ""}${fmt(d)} since first session`}</span></div>`;
+  }).join("")}</div>`;
+  card.innerHTML = `<div class="progress-grid"><div>${left}</div>${right}</div>`;
+}
+
+function renderPlan() {
+  const plan = analysisSaved ? core.loadPlan() : null;
+  if (!plan) {
+    $("plan-count").textContent = "";
+    $("plan-body").innerHTML = `<p class="hint">Analyze your own clip to get a weekly plan built from your biggest gaps.</p>`;
+    return;
+  }
+  const { done, total } = core.planProgress(plan);
+  $("plan-count").textContent = `${done}/${total} done`;
+  $("plan-body").innerHTML = `
+    <p class="hint">Training toward ${esc(plan.goal)}. Three sessions, then film a re-test.</p>
+    <div class="meter"><div style="width:${total ? (100 * done) / total : 0}%"></div></div>
+    ${plan.sessions.map((s, si) => `<div class="plan-session"><h3>${esc(s.title)}</h3>
+      ${s.drills.map((d, di) => `<label class="check ${d.done ? "done" : ""}">
+        <input type="checkbox" data-s="${si}" data-d="${di}" ${d.done ? "checked" : ""}>
+        <div><b>${esc(d.name)}</b><span>${esc(d.how)}</span></div></label>`).join("")}</div>`).join("")}
+    <p class="hint" style="margin-top:12px">${esc(plan.retest)}</p>`;
+}
+
+$("plan-body").addEventListener("change", (e) => {
+  const box = e.target.closest("input[type=checkbox]");
+  if (!box) return;
+  core.toggleDrill(core.loadPlan(), +box.dataset.s, +box.dataset.d);
+  renderPlan();
+  renderProgressCard();
+});
+
+const SUGGESTIONS = ["What should I practice today?", "How do I get more leg drive?", "Why am I not matching my goal pro?"];
+
+function renderCoach() {
+  const msgs = core.loadChat();
+  $("chat").innerHTML = [{ role: "assistant", content: "I've seen this serve. What would you like to work on?" }, ...msgs]
+    .map((m) => `<div class="msg ${m.role}">${esc(m.content)}</div>`).join("");
+  $("chat").scrollTop = $("chat").scrollHeight;
+  $("suggest").innerHTML = SUGGESTIONS.map((q) => `<button type="button">${esc(q)}</button>`).join("");
+}
+
+async function sendQuestion(q) {
+  if (!q || !analysis) return;
+  const history = core.loadChat();
+  core.saveChat([...history, { role: "user", content: q }]);
+  $("question").value = "";
+  renderCoach();
+  $("chat").insertAdjacentHTML("beforeend", `<div class="msg assistant pending">Thinking…</div>`);
+  $("chat").scrollTop = $("chat").scrollHeight;
+  try {
+    const { answer } = await core.ask(q, analysis, history);
+    core.saveChat([...core.loadChat(), { role: "assistant", content: answer }]);
+  } catch (err) {
+    core.saveChat([...core.loadChat(), { role: "assistant", content: `Sorry, I couldn't answer that (${err.message}).` }]);
+  }
+  renderCoach();
+}
+
+$("composer").addEventListener("submit", (e) => {
+  e.preventDefault();
+  sendQuestion($("question").value.trim());
+});
+$("suggest").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b) sendQuestion(b.textContent);
+});
+
+renderProgressCard();

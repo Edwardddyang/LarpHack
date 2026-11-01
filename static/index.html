@@ -26,6 +26,8 @@
       <p class="sub">Film one stroke. We measure your technique with pose tracking, compare it to pros measured the same way, and coach you toward whoever you want to play like.</p>
     </header>
 
+    <section id="progress-card" class="card hidden"></section>
+
     <section id="setup" class="card">
       <div class="options">
         <div class="field">
@@ -120,6 +122,23 @@
         <div class="card">
           <h2>Watch</h2><div id="watch"></div>
           <h2 class="mt">Your measurements</h2><dl class="nums" id="nums"></dl>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-head"><h2>This week's plan</h2><span class="chip" id="plan-count"></span></div>
+          <div id="plan-body"></div>
+        </div>
+        <div class="card coach-card">
+          <h2>Ask your coach</h2>
+          <p class="hint">Questions about your serve, your plan or your goal pro.</p>
+          <div class="chat" id="chat"></div>
+          <div class="suggest" id="suggest"></div>
+          <form class="composer" id="composer">
+            <input id="question" placeholder="Ask about your serve…" autocomplete="off">
+            <button class="btn primary" type="submit">Send</button>
+          </form>
         </div>
       </div>
 
