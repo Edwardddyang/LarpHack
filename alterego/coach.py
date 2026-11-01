@@ -222,10 +222,10 @@ def ask_template(question: str, analysis: dict) -> str:
         label = (analysis.get("labels") or {}).get(f["axis"], f["axis"]).lower()
         # Match whole, meaningful words only ("at" in "what" shouldn't hit "reach at contact").
         if words & {w for w in re.findall(r"[a-z]+", label) if len(w) > 3}:
-            return f"On {label}: you're at {f['you']} and your goal pro is at {f['them']}. {f['cue']} Try this: {d['name']} ({d['how']})."
+            return f"On {label}: you're at {f['you']} and your goal pro is at {f['them']}. {f['cue']} Try this: {d['name']} ({d['how'].rstrip('.')})."
     if fixes:
         f, d = fixes[0], drills[0] if drills else None
-        tip = f" Start with {d['name']}: {d['how']}." if d else ""
+        tip = f" Start with {d['name']}: {d['how'].rstrip('.')}." if d else ""
         return f"Your biggest gap right now is {f['axis'].replace('_', ' ')} ({f['you']} vs {f['them']}). {f['cue']}{tip}"
     return "Analyze a serve first and I'll coach you on your actual numbers."
 
