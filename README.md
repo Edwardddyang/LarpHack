@@ -13,6 +13,14 @@ Built for **LarpHacks**: Sportiner Challenge (tennis and pickleball innovation) 
 - **Weekly plan:** three practice sessions built from your three biggest gaps, as check-off drills ending in a re-test that feeds the next analysis.
 - **Ask the coach:** a chat (Claude, with rule-based fallback) that knows your numbers, your goal pro and your plan.
 
+### Accounts
+
+Analyzing is open to everyone. Progress tracking and the weekly plan need an account (email and password), so your goal pro, sessions, plan and coach chat follow you across devices. Anything you did as a guest moves into the account when you sign up.
+
+- Passwords are hashed with scrypt. Sessions are random tokens in an HttpOnly cookie, and only their SHA-256 hashes are stored.
+- Storage is Render Postgres (`alter-ego-db` in `render.yaml`, wired to the web service as `DATABASE_URL`), or a local SQLite file (`data/app.db`) in development.
+- Not built yet: password reset, email verification and rate limiting on sign-in.
+
 ## 📱 Mobile app
 
 Open the site on a phone (or go to `/m`) to get the mobile app. It's a PWA, so **Add to Home Screen** installs it.
