@@ -11,7 +11,7 @@
   "trunk_lean",
   "off_arm_height",
   "stance_width",
-  "tempo_ratio"
+  "trophy_share"
  ],
  "axes": [
   "knee_flex",
@@ -59,9 +59,9 @@
    "mean": 1.1584,
    "std": 0.3802
   },
-  "tempo_ratio": {
-   "mean": 0.8528,
-   "std": 0.0996
+  "trophy_share": {
+   "mean": 0.4882,
+   "std": 0.1783
   }
  },
  "within_std": {
@@ -74,19 +74,19 @@
   "trunk_lean": 8.0596,
   "off_arm_height": 0.2096,
   "stance_width": 0.3152,
-  "tempo_ratio": 0.0798
+  "trophy_share": 0.145
  },
  "weights": {
-  "knee_flex": 1.5919,
-  "leg_drive": 2.3805,
-  "shoulder_turn": 0.5183,
-  "separation": 1.4659,
-  "contact_height": 1.6728,
-  "arm_extension": 0.1747,
-  "trunk_lean": 0.2657,
-  "off_arm_height": 0.1476,
-  "stance_width": 0.8308,
-  "tempo_ratio": 0.9518
+  "knee_flex": 1.6251,
+  "leg_drive": 2.4302,
+  "shoulder_turn": 0.5291,
+  "separation": 1.4965,
+  "contact_height": 1.7077,
+  "arm_extension": 0.1784,
+  "trunk_lean": 0.2712,
+  "off_arm_height": 0.1507,
+  "stance_width": 0.8482,
+  "trophy_share": 0.763
  },
  "pros": {
   "federer": {
@@ -100,7 +100,7 @@
     "trunk_lean": 25.8667,
     "off_arm_height": 1.2033,
     "stance_width": 0.8667,
-    "tempo_ratio": 0.865
+    "trophy_share": 0.6163
    },
    "n_serves": 3,
    "n_videos": 2,
@@ -214,7 +214,7 @@
     "trunk_lean": 25.8333,
     "off_arm_height": 1.2067,
     "stance_width": 0.79,
-    "tempo_ratio": 0.922
+    "trophy_share": 0.3957
    },
    "n_serves": 3,
    "n_videos": 2,
@@ -328,7 +328,7 @@
     "trunk_lean": 32.6889,
     "off_arm_height": 1.21,
     "stance_width": 1.1278,
-    "tempo_ratio": 0.8513
+    "trophy_share": 0.4308
    },
    "n_serves": 9,
    "n_videos": 2,
@@ -442,7 +442,7 @@
     "trunk_lean": 35.14,
     "off_arm_height": 1.217,
     "stance_width": 1.471,
-    "tempo_ratio": 0.75
+    "trophy_share": 0.5819
    },
    "n_serves": 10,
    "n_videos": 2,
@@ -556,7 +556,7 @@
     "trunk_lean": 26.725,
     "off_arm_height": 1.2067,
     "stance_width": 1.2425,
-    "tempo_ratio": 0.8182
+    "trophy_share": 0.415
    },
    "n_serves": 12,
    "n_videos": 3,
@@ -670,7 +670,7 @@
     "trunk_lean": 22.0222,
     "off_arm_height": 1.0044,
     "stance_width": 1.3567,
-    "tempo_ratio": 0.8744
+    "trophy_share": 0.6031
    },
    "n_serves": 9,
    "n_videos": 3,
@@ -784,7 +784,7 @@
     "trunk_lean": 28.8364,
     "off_arm_height": 1.0764,
     "stance_width": 1.0836,
-    "tempo_ratio": 0.8294
+    "trophy_share": 0.3205
    },
    "n_serves": 11,
    "n_videos": 2,
@@ -898,7 +898,7 @@
     "trunk_lean": 25.425,
     "off_arm_height": 1.0925,
     "stance_width": 1.315,
-    "tempo_ratio": 0.9982
+    "trophy_share": 0.4595
    },
    "n_serves": 4,
    "n_videos": 1,
@@ -1012,7 +1012,7 @@
     "trunk_lean": 29.1,
     "off_arm_height": 1.12,
     "stance_width": 0.6629,
-    "tempo_ratio": 0.9523
+    "trophy_share": 0.6706
    },
    "n_serves": 7,
    "n_videos": 2,
@@ -1120,7 +1120,7 @@
  "evaluation": {
   "method": "leave-one-video-out",
   "n_test": 36,
-  "top1": 0.194,
-  "top3": 0.556
+  "top1": 0.222,
+  "top3": 0.583
  }
 }

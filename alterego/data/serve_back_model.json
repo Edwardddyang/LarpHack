@@ -11,7 +11,7 @@
   "trunk_lean",
   "off_arm_height",
   "stance_width",
-  "tempo_ratio"
+  "trophy_share"
  ],
  "axes": [
   "knee_flex",
@@ -59,9 +59,9 @@
    "mean": 0.7003,
    "std": 0.271
   },
-  "tempo_ratio": {
-   "mean": 0.9481,
-   "std": 0.0993
+  "trophy_share": {
+   "mean": 0.5275,
+   "std": 0.1297
   }
  },
  "within_std": {
@@ -74,19 +74,19 @@
   "trunk_lean": 4.7878,
   "off_arm_height": 0.1736,
   "stance_width": 0.2481,
-  "tempo_ratio": 0.0841
+  "trophy_share": 0.1247
  },
  "weights": {
-  "knee_flex": 2.6756,
-  "leg_drive": 0.227,
-  "shoulder_turn": 0.1295,
-  "separation": 1.3893,
-  "contact_height": 1.0392,
-  "arm_extension": 0.0753,
-  "trunk_lean": 3.657,
-  "off_arm_height": 0.1949,
-  "stance_width": 0.2399,
-  "tempo_ratio": 0.3723
+  "knee_flex": 2.6938,
+  "leg_drive": 0.2286,
+  "shoulder_turn": 0.1304,
+  "separation": 1.3988,
+  "contact_height": 1.0463,
+  "arm_extension": 0.0758,
+  "trunk_lean": 3.682,
+  "off_arm_height": 0.1963,
+  "stance_width": 0.2416,
+  "trophy_share": 0.3066
  },
  "pros": {
   "federer": {
@@ -100,7 +100,7 @@
     "trunk_lean": 4.0,
     "off_arm_height": 1.166,
     "stance_width": 0.798,
-    "tempo_ratio": 0.929
+    "trophy_share": 0.6002
    },
    "n_serves": 5,
    "n_videos": 1,
@@ -214,7 +214,7 @@
     "trunk_lean": 27.74,
     "off_arm_height": 1.034,
     "stance_width": 0.5895,
-    "tempo_ratio": 0.9996
+    "trophy_share": 0.5192
    },
    "n_serves": 20,
    "n_videos": 4,
@@ -328,7 +328,7 @@
     "trunk_lean": 25.86,
     "off_arm_height": 1.21,
     "stance_width": 0.714,
-    "tempo_ratio": 0.8904
+    "trophy_share": 0.4156
    },
    "n_serves": 5,
    "n_videos": 1,
@@ -442,7 +442,7 @@
     "trunk_lean": 14.7286,
     "off_arm_height": 1.2443,
     "stance_width": 0.9371,
-    "tempo_ratio": 0.8557
+    "trophy_share": 0.579
    },
    "n_serves": 7,
    "n_videos": 1,
@@ -550,7 +550,7 @@
  "evaluation": {
   "method": "leave-one-video-out",
   "n_test": 20,
-  "top1": 0.85,
+  "top1": 0.8,
   "top3": 1.0
  }
 }
