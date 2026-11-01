@@ -6,3 +6,4 @@ __pycache__/
 data/videos/
 data/sheets/
 models/*.task
+data/cache/
