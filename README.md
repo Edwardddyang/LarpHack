@@ -79,8 +79,8 @@ Current models (leave-one-video-out, so serves from a held-out video are never i
 
 | View | Serves | Pros | Top-1 | Top-3 |
 |---|---|---|---|---|
-| **Side fence** (recommended) | 72 | 9: Serena 12, Swiatek 11, Sinner 10, Alcaraz 9, Kyrgios 9, Nadal 7, Zverev 4, Federer 3, Djokovic 3 | 19% (chance 11%) | 56% (chance 33%) |
-| Behind baseline | 37 | 4: Nadal 20, Kyrgios 7, Federer 5, Sinner 5 | 85%* | 100%* |
+| **Side fence** (recommended) | 72 | 9: Serena 12, Swiatek 11, Sinner 10, Alcaraz 9, Kyrgios 9, Nadal 7, Zverev 4, Federer 3, Djokovic 3 | 22% (chance 11%) | 58% (chance 33%) |
+| Behind baseline | 37 | 4: Nadal 20, Kyrgios 7, Federer 5, Sinner 5 | 80%* | 100%* |
 
 \* Only Nadal has more than one behind-the-baseline video, so the back model can be tested on Nadal alone. Don't read it as general accuracy.
 
