@@ -70,7 +70,11 @@ $("flip").addEventListener("click", async () => {
 });
 $("rec").addEventListener("click", onRecordButton);
 
+/** The in-app camera needs a secure context (HTTPS or localhost) and getUserMedia. */
+const inAppCamera = () => window.isSecureContext && !!navigator.mediaDevices?.getUserMedia;
+
 async function openCamera() {
+  if (!inAppCamera()) return $("record-native").click();
   show("camera");
   resetRecordUI();
   try {
@@ -120,8 +124,14 @@ function cameraError(e) {
   console.error(e);
   stopCamera();
   show("home");
-  alert("Couldn't open the camera (it needs HTTPS and permission). You can upload a clip from your camera roll instead.");
+  // Permission denied or no camera. A file picker can only open from a tap, so offer one.
+  $("camera-notice").classList.remove("hidden");
 }
+
+$("use-native").addEventListener("click", () => {
+  $("camera-notice").classList.add("hidden");
+  $("record-native").click();
+});
 
 function updateFrameHint(lm) {
   const hint = $("frame-hint");
@@ -196,9 +206,13 @@ function finishRecording() {
 
 // ---------- upload ----------
 
-$("file").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  e.target.value = "";
+// Clips recorded in the phone's camera app take the same path as uploads.
+$("record-native").addEventListener("change", (e) => analyzeFileInput(e.target));
+$("file").addEventListener("change", (e) => analyzeFileInput(e.target));
+
+function analyzeFileInput(input) {
+  const file = input.files[0];
+  input.value = "";
   if (!file) return;
   source = "file";
   startWorking();
@@ -210,7 +224,7 @@ $("file").addEventListener("change", (e) => {
       return runAnalysis();
     })
     .catch(showError);
-});
+}
 
 // ---------- analysis ----------
 

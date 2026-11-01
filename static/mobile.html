@@ -62,6 +62,13 @@
 
     <div class="home-actions">
       <button class="btn primary" id="open-camera">Record a swing</button>
+      <!-- Fallback when the in-app camera isn't available (plain HTTP, no permission):
+           hand off to the phone's camera app and bring the clip back. -->
+      <input type="file" id="record-native" accept="video/*" capture="environment" hidden>
+      <div class="panel notice hidden" id="camera-notice">
+        <p>Couldn't open the camera here. Allow camera access in your browser settings, or record with your phone's camera app instead.</p>
+        <button class="btn primary" id="use-native">Use phone camera</button>
+      </div>
       <label class="btn">
         <input type="file" id="file" accept="video/*" hidden>
         Upload a video

@@ -331,3 +331,7 @@ svg.curve { width: 100%; display: block; }
 .gate h2 { font-size: 18px; }
 .gate .btn { margin-top: 10px; }
 .gate .btn { width: 100%; }
+.notice { margin: 0; }
+.notice p { margin: 0 0 10px; font-size: 14px; }
+.notice .btn { width: 100%; }
+.timer { max-width: calc(100% - 32px); text-align: center; }
