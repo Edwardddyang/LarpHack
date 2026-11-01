@@ -11,7 +11,7 @@ import sys
 import uuid
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -104,6 +104,28 @@ async def run_status(run_id: str):
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 
+MOBILE_UA = ("iphone", "android", "ipad", "mobile")
+
+
 @app.get("/")
-async def index():
+async def index(request: Request):
+    ua = request.headers.get("user-agent", "").lower()
+    if "desktop" not in request.query_params and any(k in ua for k in MOBILE_UA):
+        return FileResponse(ROOT / "static" / "mobile.html")
     return FileResponse(ROOT / "static" / "index.html")
+
+
+@app.get("/m")
+async def mobile():
+    return FileResponse(ROOT / "static" / "mobile.html")
+
+
+@app.get("/manifest.webmanifest")
+async def manifest():
+    return FileResponse(ROOT / "static" / "manifest.webmanifest", media_type="application/manifest+json")
+
+
+@app.get("/sw.js")
+async def service_worker():
+    # Served from the root so its scope covers the whole app.
+    return FileResponse(ROOT / "static" / "sw.js", media_type="text/javascript")
