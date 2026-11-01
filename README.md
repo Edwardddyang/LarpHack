@@ -18,7 +18,7 @@ Built for **LarpHacks**: Sportiner Challenge (tennis and pickleball innovation) 
 Analyzing is open to everyone. Progress tracking and the weekly plan need an account (email and password), so your goal pro, sessions, plan and coach chat follow you across devices. Anything you did as a guest moves into the account when you sign up.
 
 - Passwords are hashed with scrypt. Sessions are random tokens in an HttpOnly cookie, and only their SHA-256 hashes are stored.
-- Storage is Render Postgres (`alter-ego-db` in `render.yaml`, wired to the web service as `DATABASE_URL`), or a local SQLite file (`data/app.db`) in development.
+- Storage is Render Postgres on the free plan, which Render removes after about 30 days (`alter-ego-db` in `render.yaml`, wired to the web service as `DATABASE_URL`), or a local SQLite file (`data/app.db`) in development.
 - Not built yet: password reset, email verification and rate limiting on sign-in.
 
 ## 📱 Mobile app

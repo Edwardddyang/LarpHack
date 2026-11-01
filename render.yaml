@@ -37,5 +37,5 @@ services:
 
 databases:
   - name: alter-ego-db
-    plan: basic-256mb
+    plan: free
     region: oregon
