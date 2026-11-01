@@ -31,7 +31,7 @@ function show(id) {
 
 document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
 
-document.querySelectorAll(".seg").forEach((group) => {
+document.querySelectorAll(".seg[data-name]").forEach((group) => {
   group.addEventListener("click", (e) => {
     const btn = e.target.closest("button");
     if (!btn) return;
@@ -285,9 +285,21 @@ async function afterAnalysis({ save }) {
     previous = null;
   }
   renderResults();
+  showResultPane("compare");
   show("results");
-  $("deck").scrollTo({ left: 0 });
 }
+
+function showResultPane(name) {
+  document.querySelectorAll("#result-tabs button").forEach((b) => b.classList.toggle("on", b.dataset.pane === name));
+  $("r-compare").classList.toggle("hidden", name !== "compare");
+  $("r-improve").classList.toggle("hidden", name !== "improve");
+  document.querySelector(".results-body").scrollTop = 0;
+}
+
+$("result-tabs").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b) showResultPane(b.dataset.pane);
+});
 
 async function makeContactShot(t) {
   if (source === "file") return core.snapshotFromVideo($("clip"), frames, t);
@@ -372,7 +384,8 @@ function renderResults() {
     ${core.getGoal()?.pro_id === pro.id
       ? `<span class="chip goal-badge">Your goal pro</span>`
       : `<button class="btn goal-btn" id="set-goal">Make ${esc(pro.name.split(" ")[0])} my goal</button>`}
-    <div class="swipe">Swipe for your plan</div>`;
+    <button class="text-btn" id="to-improve">See how to improve</button>`;
+  $("to-improve").addEventListener("click", () => showResultPane("improve"));
   $("set-goal")?.addEventListener("click", () => {
     core.setGoal(pro.id, pro.name);
     // Re-aim the week's plan at the new goal, but only for the player's own serve.
@@ -410,37 +423,21 @@ function renderResults() {
         <span class="meter"><div style="width:${m.similarity}%"></div></span></li>`;
     })
     .join("");
-
-  const slides = $("deck").children.length;
-  $("dots").innerHTML = Array.from({ length: slides }, (_, i) => `<i class="${i === 0 ? "on" : ""}"></i>`).join("");
 }
 
-$("deck").addEventListener("scroll", () => {
-  const deck = $("deck");
-  const idx = Math.round(deck.scrollLeft / deck.clientWidth);
-  [...$("dots").children].forEach((d, i) => d.classList.toggle("on", i === idx));
-});
 
-// ---------- pro picker sheet ----------
 
-function openSheet(open) {
-  $("sheet").classList.toggle("open", open);
-  $("sheet").setAttribute("aria-hidden", String(!open));
-  $("sheet-backdrop").classList.toggle("hidden", !open);
-}
-$("open-pros").addEventListener("click", () => openSheet(true));
-$("sheet-backdrop").addEventListener("click", () => openSheet(false));
+// ---------- switch pro from the Compare list ----------
 
 $("board").addEventListener("click", async (e) => {
   const li = e.target.closest("li");
   if (!li) return;
-  if (li.dataset.id === analysis.target) return openSheet(false);
+  if (li.dataset.id === analysis.target) return;
   li.classList.add("loading");
   try {
     await core.become(analysis, li.dataset.id);
     renderResults();
-    openSheet(false);
-    $("deck").scrollTo({ left: 0, behavior: "smooth" });
+    document.querySelector(".results-body").scrollTo({ top: 0, behavior: "smooth" });
   } catch (err) {
     alert(err.message);
   } finally {

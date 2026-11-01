@@ -138,40 +138,53 @@
 
   <!-- Results -->
   <section class="screen hidden" id="results">
-    <div class="deck" id="deck">
-      <article class="slide"><div class="pane match" id="card"></div></article>
-      <article class="slide">
-        <div class="pane">
+    <div class="results-top">
+      <div class="seg wide" id="result-tabs">
+        <button data-pane="compare" class="on">Compare</button>
+        <button data-pane="improve">Improve</button>
+      </div>
+    </div>
+    <div class="results-body">
+      <div class="r-pane" id="r-compare">
+        <div class="panel match" id="card"></div>
+        <div class="panel">
           <h2 id="headline"></h2>
           <p class="story" id="story"></p>
           <div class="traits" id="traits"></div>
-          <h3>Style profile</h3>
+        </div>
+        <div class="panel">
+          <h2>Style profile</h2>
+          <p class="hint">You compared with <span id="them-label">the pro</span>. 50 is the average pro.</p>
           <svg id="radar" class="radar" viewBox="-60 0 440 300" role="img" aria-label="Style radar chart"></svg>
-          <div class="legend"><span class="you">You</span><span class="them" id="them-label">Pro</span></div>
+          <div class="legend"><span class="you">You</span><span class="them">Pro</span></div>
           <div class="phases" id="phases"></div>
         </div>
-      </article>
-      <article class="slide"><div class="pane"><h2>What to work on</h2><ol class="fixes" id="fixes"></ol></div></article>
-      <article class="slide"><div class="pane"><h2>Drills</h2><div id="drills"></div><h2 class="mt">Watch</h2><div id="watch"></div></div></article>
-      <article class="slide"><div class="pane"><h2>Your measurements</h2><dl class="nums" id="nums"></dl>
-        <p class="fine">Serve profiles are measured from public pro footage with the same pose tracking. Other strokes use estimated profiles.</p></div></article>
+        <div class="panel">
+          <h2>Compare with other pros</h2>
+          <p class="hint">Tap a pro to get coached toward their style instead.</p>
+          <ul class="board" id="board"></ul>
+        </div>
+        <div class="panel"><h2>Your measurements</h2><dl class="nums" id="nums"></dl>
+          <p class="fine">Serve profiles are measured from public pro footage with the same pose tracking. Other strokes use estimated profiles.</p></div>
+      </div>
+
+      <div class="r-pane hidden" id="r-improve">
+        <div class="panel"><h2>What to work on</h2><ol class="fixes" id="fixes"></ol></div>
+        <div class="panel"><h2>Drills</h2><div id="drills"></div></div>
+        <div class="panel"><h2>Watch</h2><div id="watch"></div></div>
+        <div class="panel next-steps">
+          <h2>Keep improving</h2>
+          <p class="hint" id="plan-hint">Your weekly plan is built from these gaps.</p>
+          <button class="btn primary" data-go="plan">Open this week's plan</button>
+          <button class="btn" data-go="coach">Ask the coach</button>
+        </div>
+      </div>
     </div>
-    <div class="dots" id="dots"></div>
-    <nav class="bar">
-      <button class="btn" id="open-pros">Compare pros</button>
+    <nav class="bar two">
       <button class="btn" id="share">Share</button>
       <button class="btn primary" id="restart">Done</button>
     </nav>
   </section>
-
-  <!-- Pro picker sheet -->
-  <div class="sheet-backdrop hidden" id="sheet-backdrop"></div>
-  <div class="sheet" id="sheet" aria-hidden="true">
-    <div class="grab"></div>
-    <h2>Choose a pro</h2>
-    <p class="hint">Get coached toward their style instead.</p>
-    <ul class="board" id="board"></ul>
-  </div>
 
   <script type="module" src="/static/mobile.js"></script>
 </body>
