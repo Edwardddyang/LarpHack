@@ -204,7 +204,12 @@ def extract_features(payload: dict) -> dict:
 
     hip_y = [_mid(p[L_HIP], p[R_HIP])[1] for p in pts]
     lowest = max(loading, key=lambda i: hip_y[i])
-    rise = max(0.0, hip_y[lowest] - min(hip_y[i] for i in range(lowest, end + 1)))
+    # Rise from the deepest crouch to the highest hips around contact. The window
+    # after contact is a fixed share of the windup, not the follow-through end,
+    # which varies with clip length and camera angle.
+    drive_end_t = times[contact] + 0.25 * (times[contact] - times[load_start])
+    drive_end = max(i for i in range(contact, len(pts)) if times[i] <= drive_end_t)
+    rise = max(0.0, hip_y[lowest] - min(hip_y[i] for i in range(lowest, drive_end + 1)))
     leg_drive = rise / scale
 
     sw = [_dist(pts[i][L_SHOULDER], pts[i][R_SHOULDER]) for i in window]
